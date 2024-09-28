@@ -1,5 +1,5 @@
-const clientId = '3480a61eafba4dc0a0d965581aae66d3';  // App ID
-const redirectUrl = 'http://localhost:5173';  // Make sure this matches your Spotify redirect URL
+const clientId = import.meta.env.VITE_API_CLIENT_ID;  // Tulee .env tiedostosta, mikä pitää olla juuressa.
+const redirectUrl = 'http://localhost:5173/';  // Make sure this matches your Spotify redirect URL
 
 const authorizationEndpoint = "https://accounts.spotify.com/authorize";
 const tokenEndpoint = "https://accounts.spotify.com/api/token";
