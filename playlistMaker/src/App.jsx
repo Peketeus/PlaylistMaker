@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import './App.css';
-import { getToken, currentToken, getUserData, loginWithSpotifyClick } from './service';
+import { getToken, currentToken, getUserData, loginWithSpotifyClick, logoutClick } from './service';
 
 function App() {
   const [userData, setUserData] = useState(null);
@@ -11,9 +11,11 @@ function App() {
     console.log('code =', code)
 
     // If the code is present in the URL, exchange it for a token
-    if (code) {
+    if (code && !currentToken.access_token) {
       getToken(code).then((token) => {
         currentToken.save(token);
+
+        console.log('Access token = ', currentToken.access_token)
 
         // Poistetaan URL:sta code parametri
         const url = new URL(window.location.href)
@@ -34,17 +36,6 @@ function App() {
         setUserData(data);
         setIsLoggedIn(true);
       });
-      return;
-    }
-
-    if (!currentToken.access_token) {
-      console.log('You dont have the access token!')
-    }
-
-    if (!code) {
-      setIsLoggedIn(false)
-      localStorage.clear()
-      console.log('Local storage tyhjennetty, koska !code')
     }
   }, []);
 
@@ -55,9 +46,11 @@ function App() {
       {!isLoggedIn ? (
         <button onClick={loginWithSpotifyClick}>Login with Spotify</button>
       ) : (
+        // Tämä näytetään, jos on kirjauduttu sisään
         <div>
           <h2>Welcome, {userData?.display_name}</h2>
           <img src={userData?.images?.[0]?.url} alt="Profile" />
+          <button onClick={logoutClick}>LOG OUT</button>
         </div>
       )}
     </div>

@@ -59,6 +59,8 @@ export async function redirectToSpotifyAuthorize() {
 export async function getToken(code) {
   const code_verifier = localStorage.getItem('code_verifier');
 
+  console.log('Code verifier: ', code_verifier)
+
   const response = await fetch(tokenEndpoint, {
     method: 'POST',
     headers: {
@@ -72,6 +74,8 @@ export async function getToken(code) {
       code_verifier: code_verifier,
     }),
   });
+
+  console.log(response)
 
   return await response.json();
 }
@@ -108,7 +112,7 @@ export async function loginWithSpotifyClick() {
   await redirectToSpotifyAuthorize();
 }
 
-// Optional function to handle logout and clear local storage
+// Kirjautuu ulos painiketta painamalla
 export async function logoutClick() {
   localStorage.clear();
   window.location.href = redirectUrl;
