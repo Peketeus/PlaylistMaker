@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import './App.css';
-import { getToken, currentToken, getUserData, loginWithSpotifyClick, logoutClick } from './service';
+import { getToken, currentToken, getUserData, loginWithSpotifyClick, logoutClick, apiCallClick } from './service';
 
 function App() {
   const [userData, setUserData] = useState(null);
@@ -50,7 +50,15 @@ function App() {
         <div>
           <h2>Welcome, {userData?.display_name}</h2>
           <img src={userData?.images?.[0]?.url} alt="Profile" />
-          <button onClick={logoutClick}>LOG OUT</button>
+          <div>
+            <button onClick={() => apiCallClick('0cmANMS0v2eDqkCD093mHc')}>API CALL</button>
+          </div>
+          <div>
+            Tähän voi esimerkiksi laittaa löytyneitä biisejä esille
+          </div>
+          <div>
+            <button onClick={logoutClick}>LOG OUT</button>
+          </div>
         </div>
       )}
     </div>

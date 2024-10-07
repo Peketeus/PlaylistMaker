@@ -123,3 +123,27 @@ export async function refreshTokenClick() {
   const token = await refreshToken();
   currentToken.save(token);
 }
+
+//-------------------------------------------------------------------------------------------
+// Laitetaan meidän omat funktiot tästä alas, niin ei mene tuohon authorization 
+// koodin sekaan meidän omaa turhan paljon.
+
+// tekee apikutsun nappia painamalla
+export async function apiCallClick(params) {
+  console.log("Api call parametrilla: ", params)
+
+  // yhdistää yksittäisen biisin hakuun id:n (params)
+  let endpoint = "https://api.spotify.com/v1/tracks/".concat(params)
+
+  const track = await apiCall(endpoint)
+}
+
+// apikutsu
+export async function apiCall(params) {
+  const response = await fetch(params, {
+    method: 'GET',
+    headers: { 'Authorization': 'Bearer ' + currentToken.access_token },
+  });
+
+  return await response.json();
+}
