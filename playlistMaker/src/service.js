@@ -138,6 +138,8 @@ export async function apiCallClick(params) {
   const track = await apiCall(endpoint)
   
   console.log(track)
+
+  return track;
 }
 
 // apikutsu. Muut funktiot luovat osoitteen, jonka jälkeen tätä kutsutaan
@@ -148,4 +150,10 @@ export async function apiCall(params) {
   });
 
   return await response.json();
+}
+
+// Merkitään haku tehdyksi jotta hakutulos-komponentti saadaan renderöidä, ja suoritetaan apikutsu
+export async function searchAndShowResult(stateSetter, params) {
+  stateSetter(true);
+  return apiCallClick(params);
 }

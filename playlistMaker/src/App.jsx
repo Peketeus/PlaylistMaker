@@ -1,10 +1,13 @@
 import React, { useEffect, useState } from 'react';
+import { Routes, Route, useNavigate } from 'react-router-dom';
+import TrackSearch from './components/trackSearch';
 import './App.css';
 import { getToken, currentToken, getUserData, loginWithSpotifyClick, logoutClick, apiCallClick } from './service';
 
 function App() {
   const [userData, setUserData] = useState(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const code = new URLSearchParams(window.location.search).get('code');
@@ -49,15 +52,11 @@ function App() {
         // Tämä näytetään, jos on kirjauduttu sisään
         <div>
           <h2>Welcome, {userData?.display_name}</h2>
-          <img src={userData?.images?.[0]?.url} alt="Profile" />
           <div>
-            <button onClick={() => apiCallClick('0cmANMS0v2eDqkCD093mHc')}>API CALL</button>
-          </div>
-          <div>
-            Tähän voi esimerkiksi laittaa löytyneitä biisejä esille
-          </div>
-          <div>
+            <TrackSearch />
+          <div className='mt-8'>
             <button onClick={logoutClick}>LOG OUT</button>
+          </div>
           </div>
         </div>
       )}
