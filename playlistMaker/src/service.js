@@ -80,7 +80,7 @@ export async function getToken(code) {
   return await response.json();
 }
 
-// Function to refresh the token using the refresh token
+// Function to refresh the token using the refresh token // TODO: katotaan jos yhdistetään tuohon isTokenExpired functioon ja jätettäis kaikki yhden alle.
 export async function refreshToken() {
   const response = await fetch(tokenEndpoint, {
     method: 'POST',
@@ -95,6 +95,29 @@ export async function refreshToken() {
   });
 
   return await response.json();
+}
+
+//  Functio tarkistaa onko tokeni vanhentunut ja jos on niin päivittää uuteen.Tuleeko toimimaan toisen päivityksen jälkeen? //TODO :Jätetään tähän vain tarkistus että tarviiko virkistää ja sitte palauttaa true tai false ja tämän jälkee siellä muualla voidaa kutsua refreshToken. Helpompilukusta syntaxia?
+export function isTokenExpired() { // TODO: exportin voi ottaa pois ku ei enää testaile nappulalla
+  const expiresAtString = currentToken.expires;
+  if (!expiresAtString) {
+    // const token = await refreshToken();
+    // currentToken.save(token);
+    console.log("Tokeni pitää virkistää!<3"); //rmv
+    return true;
+  }
+  const expiresAt = new Date(expiresAtString);
+  const currentTime = new Date(); 
+
+  if(currentTime > expiresAt){
+    // const token = await refreshToken();
+    // currentToken.save(token);
+    console.log("Tokeni pitää virkistää!"); //rmv
+    return true;
+  }else{
+    console.log("Tokenia ei tarvitse virkistää. Virkistetään tämän kellonajan jälkeen: " + expiresAtString); //rmv
+    return false;
+  }
 }
 
 // Function to get the current user's data
@@ -122,6 +145,7 @@ export async function logoutClick() {
 export async function refreshTokenClick() {
   const token = await refreshToken();
   currentToken.save(token);
+  console.log("Tokeni on virkistetty!<3");
 }
 
 //-------------------------------------------------------------------------------------------
@@ -131,6 +155,7 @@ export async function refreshTokenClick() {
 // tekee apikutsun nappia painamalla
 export async function apiCallClick(params) {
   console.log("Api call parametrilla: ", params)
+
 
   // yhdistää yksittäisen biisin hakuun id:n (params)
   const endpoint = "https://api.spotify.com/v1/tracks/".concat(params)
@@ -144,6 +169,7 @@ export async function apiCallClick(params) {
 
 // apikutsu. Muut funktiot luovat osoitteen, jonka jälkeen tätä kutsutaan
 export async function apiCall(params) {
+  if(isTokenExpired()) refreshTokenClick(); // TODO: Tokenrefresher ei tainnu virkistää tokenia oikeassa järjestyksessä. Yritti hakea biisua ja sitte vasta virkisti tokenin? pitää kahtoa asiaa uudestaa.
   const response = await fetch(params, {
     method: 'GET',
     headers: { 'Authorization': 'Bearer ' + currentToken.access_token },
@@ -156,4 +182,111 @@ export async function apiCall(params) {
 export async function searchAndShowResult(stateSetter, params) {
   stateSetter(true);
   return apiCallClick(params);
+}
+
+export function testiTeppo(){
+  if(isTokenExpired()) refreshTokenClick();
+}
+
+
+// Function to search for tracks based on genre and year range
+async function searchTracksByCriteria(genre, yearFrom, yearTo, accessToken, limit = 50, offset = 0) {
+  // Fixed URL without popularity (Spotify API doesn't support direct popularity filtering in search)
+  const url = `https://api.spotify.com/v1/search?q=genre:${genre}%20year:${yearFrom}-${yearTo}&type=track&limit=${limit}&offset=${offset}`;
+
+  // Log the URL for debugging
+  console.log('Fetching URL:', url);
+
+  const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+          Authorization: `Bearer ${accessToken}`,
+          'Content-Type': 'application/json'
+      }
+  });
+
+  if (response.ok) {
+      const data = await response.json();
+      // Extract track items with popularity metadata
+      const tracks = data.tracks.items;
+      return tracks;
+  } else {
+      console.error('Error searching tracks by criteria:', response.status, response.statusText);
+      return [];
+  }
+}
+
+// Filter tracks by popularity manually after fetching the results
+function filterTracksByPopularity(tracks, maxPopularity) {
+  return tracks.filter(track => track.popularity <= maxPopularity);
+}
+
+// Fetch audio features for given track IDs
+async function fetchAudioFeatures(trackIds, accessToken) {
+  if (trackIds.length === 0) return [];
+
+  const url = `https://api.spotify.com/v1/audio-features?ids=${trackIds.join(',')}`;
+
+  const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+          Authorization: `Bearer ${accessToken}`,
+          'Content-Type': 'application/json'
+      }
+  });
+
+  if (response.ok) {
+      const data = await response.json();
+      return data.audio_features;
+  } else {
+      console.error('Error fetching audio features:', response.status, response.statusText);
+      return [];
+  }
+}
+
+// Filter tracks by danceability and energy
+function filterTracksByFeatures(audioFeatures, danceabilityThreshold, energyThreshold) {
+  return audioFeatures.filter(feature => 
+      feature.danceability >= danceabilityThreshold && feature.energy >= energyThreshold
+  );
+}
+
+// Combine everything together and filter by danceability, energy, and popularity
+async function getHighEnergyDanceableTracksByCriteria(genre, yearFrom, yearTo, maxPopularity, accessToken, limit = 50, random) {
+  // Step 1: Random offset for random results
+  let randomOffset = 0;
+  if(random){
+    randomOffset = Math.floor(Math.random() * 1000);
+    console.log(randomOffset);
+  } 
+
+  // Step 2: Search for tracks by genre and year range (popularity will be filtered manually)
+  const tracks = await searchTracksByCriteria(genre, yearFrom, yearTo, accessToken, limit, randomOffset);
+
+  // Step 3: Filter tracks by popularity (Spotify API doesn't support direct filtering)
+  const filteredByPopularity = filterTracksByPopularity(tracks, maxPopularity); //filtteri syö limittimäärästä biisejä, esim jos haetaan 50 biisiä ja 14 osuu kriteereihin nii palautetaan vain 14 biisua, tähän pitäis tehä paikkaus joka täydentää haluttuun lukumäärään
+
+  // Step 4: Extract track IDs and fetch audio features for danceability and energy
+  const trackIds = filteredByPopularity.map(track => track.id);
+  const audioFeatures = await fetchAudioFeatures(trackIds, accessToken);
+
+  // Step 5: Filter by danceability and energy > 70%
+  const filteredTracks = filterTracksByFeatures(audioFeatures, 0.7, 0.7);
+
+  console.log('Filtered tracks with energy and danceability > 70%:', filteredTracks);
+}
+
+
+// Example usage:                                                                                   //???? JERJEJREJJREJRE
+const accessToken = 'YOUR_SPOTIFY_ACCESS_TOKEN';  //? currentToken.access_token
+const genre = 'pop';  // The genre you want to search
+const yearFrom = 2000;  // Starting year of range
+const yearTo = 2010;    // Ending year of range
+const maxPopularity = 100;  // Maximum popularity threshold
+const limit = 50;  // Number of tracks to fetch
+const random = true; // otetaanko random biisit vai samat
+
+
+export function hakuHarri(){
+  getHighEnergyDanceableTracksByCriteria(genre, yearFrom, yearTo, maxPopularity, currentToken.access_token, limit, random);
 }

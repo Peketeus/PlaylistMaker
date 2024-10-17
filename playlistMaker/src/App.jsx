@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Routes, Route, useNavigate } from 'react-router-dom';
 import TrackSearch from './components/trackSearch';
 import './App.css';
-import { getToken, currentToken, getUserData, loginWithSpotifyClick, logoutClick, apiCallClick } from './service';
+import { getToken, currentToken, getUserData, loginWithSpotifyClick, logoutClick, apiCallClick, testiTeppo, hakuHarri } from './service';
 
 function App() {
   const [userData, setUserData] = useState(null);
@@ -13,7 +13,7 @@ function App() {
     const code = new URLSearchParams(window.location.search).get('code');
     console.log('code =', code)
 
-    // If the code is present in the URL, exchange it for a token
+    // If the code is present in the URL, exchange it for a token 
     if (code && !currentToken.access_token) {
       getToken(code).then((token) => {
         currentToken.save(token);
@@ -56,6 +56,12 @@ function App() {
             <TrackSearch />
           <div className='mt-8'>
             <button onClick={logoutClick}>LOG OUT</button>
+          </div>
+          <div className='mt-8'>
+            <button onClick={testiTeppo}>TestiTEPPO???</button>
+          </div>
+          <div className='mt-8'>
+            <button onClick={hakuHarri}>HakuHARRI???</button>
           </div>
           </div>
         </div>
