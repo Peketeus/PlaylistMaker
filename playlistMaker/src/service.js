@@ -3,7 +3,7 @@ const redirectUrl = 'http://localhost:5173/';  // Make sure this matches your Sp
 
 const authorizationEndpoint = "https://accounts.spotify.com/authorize";
 const tokenEndpoint = "https://accounts.spotify.com/api/token";
-const scope = 'user-read-private user-read-email';
+const scope = 'user-read-private user-read-email playlist-modify-public playlist-modify-private';
 
 // Data structure to manage the active token
 export const currentToken = {
@@ -272,10 +272,100 @@ async function getHighEnergyDanceableTracksByCriteria(genre, yearFrom, yearTo, m
 
   // Step 5: Filter by danceability and energy > 70%
   const filteredTracks = filterTracksByFeatures(audioFeatures, 0.7, 0.7);
-
+  
   console.log('Filtered tracks with energy and danceability > 70%:', filteredTracks);
+
+  // Step 6: Creating a playlist
+  const userData = await getUserData();
+  // Constructing a date identifier for now
+  const formattedDate = constructDateNow();
+  const name = ("TESTI PLAYLIST", formattedDate);
+  // Other 2 parameters
+  const description = "RANDOMILLA GENEROITU";
+  const _public = true;
+  const playlist = await createPlaylist(userData.id, name, description, _public);
+  console.log("CREATED PLAYLIST:", playlist);
+  console.log("LINK:", playlist.external_urls.spotify);
+
+  // Step 7: Add filtered tracks to the new playlist
+  const playlist_snapshot = await addTracksToPlaylist(playlist, filteredTracks);
+  // Snapshot is a version identifier for the playlist. 
+  // A new one is generated every time the playlist is modified.
+  // Useful when modifying playlists as it works as a guarantee
+  // you are working with the latest version.
+  console.log("SNAPSHOT:", playlist_snapshot);
 }
 
+/**
+ * Constructs a formated date for current time
+ * @returns formatted date
+ */
+function constructDateNow() {
+  const now = new Date(Date.now());
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, '0');
+  const day = String(now.getDate()).padStart(2, '0');
+  const hours = String(now.getHours()).padStart(2, '0');
+  const minutes = String(now.getMinutes()).padStart(2, '0');
+  const seconds = String(now.getSeconds()).padStart(2, '0');
+  return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+}
+
+/**
+ * Creates a playlist for the user
+ * @param {String} user_id 
+ * @param {String} name 
+ * @param {String} description 
+ * @param {Boolean} _public 
+ * @returns data
+ */
+async function createPlaylist(user_id, name, description, _public) {
+  const url = `https://api.spotify.com/v1/users/${user_id}/playlists`;
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: {
+        Authorization: `Bearer ${currentToken.access_token}`,
+        'Content-Type': 'application/json',
+    },
+      body: JSON.stringify({
+        name: name,
+        description: description.substring(0, 50),
+        public: _public,
+      })
+    });
+  if (!response.ok) {
+    throw new Error(`Failed to create playlist: ${response.statusText}`);
+  }
+  const data = await response.json();
+  return data;
+}
+
+/**
+ * Adds tracks to the specified playlist
+ * @param {Object} playlist 
+ * @param {Array} tracks 
+ * @returns data
+ */
+async function addTracksToPlaylist(playlist, tracks) {
+  // Correct format
+  const track_uris = tracks.map(track => `spotify:track:${track.id}`);
+  console.log("TRACK URIS:", track_uris);
+  const response = await fetch(`https://api.spotify.com/v1/playlists/${playlist.id}/tracks`, {
+    method: 'POST',
+    headers: {
+        Authorization: `Bearer ${currentToken.access_token}`,
+        'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      uris: track_uris,
+    })
+});
+if (!response.ok){
+  throw new Error(`Failed to add tracks to playlist: ${response.statusText}`);
+}
+  const data = await response.json();
+  return data;
+}
 
 // Example usage:                                                                                   //???? JERJEJREJJREJRE
 const accessToken = 'YOUR_SPOTIFY_ACCESS_TOKEN';  //? currentToken.access_token
@@ -285,7 +375,6 @@ const yearTo = 2010;    // Ending year of range
 const maxPopularity = 100;  // Maximum popularity threshold
 const limit = 50;  // Number of tracks to fetch
 const random = true; // otetaanko random biisit vai samat
-
 
 export function hakuHarri(){
   getHighEnergyDanceableTracksByCriteria(genre, yearFrom, yearTo, maxPopularity, currentToken.access_token, limit, random);
