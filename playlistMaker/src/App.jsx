@@ -3,6 +3,7 @@ import { Routes, Route, useNavigate } from 'react-router-dom';
 import TrackSearch from './components/trackSearch';
 import './App.css';
 import { getToken, currentToken, getUserData, loginWithSpotifyClick, logoutClick, apiCallClick, testiTeppo, hakuHarri } from './service';
+import SearchForm from './components/SearchForm'
 
 function App() {
   const [userData, setUserData] = useState(null);
@@ -52,6 +53,7 @@ function App() {
         // Tämä näytetään, jos on kirjauduttu sisään
         <div>
           <h2>Welcome, {userData?.display_name}</h2>
+            <SearchForm />
           <div>
             <TrackSearch />
           <div className='mt-8'>

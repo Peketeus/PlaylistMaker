@@ -251,8 +251,10 @@ function filterTracksByFeatures(audioFeatures, danceabilityThreshold, energyThre
   );
 }
 
+// const danceability = 0.1; //between 0-1 the level is higher than the number
+// const energyLevel = 0.1;
 // Combine everything together and filter by danceability, energy, and popularity
-async function getHighEnergyDanceableTracksByCriteria(genre, yearFrom, yearTo, maxPopularity, accessToken, limit = 50, random) {
+async function getHighEnergyDanceableTracksByCriteria(genre, yearFrom, yearTo, maxPopularity, accessToken, limit = 50, random, danceability, energyLevel) {
   // Step 1: Random offset for random results
   let randomOffset = 0;
   if(random){
@@ -271,7 +273,7 @@ async function getHighEnergyDanceableTracksByCriteria(genre, yearFrom, yearTo, m
   const audioFeatures = await fetchAudioFeatures(trackIds, accessToken);
 
   // Step 5: Filter by danceability and energy > 70%
-  const filteredTracks = filterTracksByFeatures(audioFeatures, 0.7, 0.7);
+  const filteredTracks = filterTracksByFeatures(audioFeatures, danceability, energyLevel);
   
   console.log('Filtered tracks with energy and danceability > 70%:', filteredTracks);
 
@@ -378,4 +380,8 @@ const random = true; // otetaanko random biisit vai samat
 
 export function hakuHarri(){
   getHighEnergyDanceableTracksByCriteria(genre, yearFrom, yearTo, maxPopularity, currentToken.access_token, limit, random);
+}
+
+export function search(genre, yearFrom, yearTo, maxPopularity, limit, danceability, energyLevel){
+  getHighEnergyDanceableTracksByCriteria(genre, yearFrom, yearTo, maxPopularity, currentToken.access_token, limit, random, danceability, energyLevel);
 }
