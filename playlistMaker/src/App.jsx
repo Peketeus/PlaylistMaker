@@ -52,19 +52,23 @@ function App() {
       ) : (
         // Tämä näytetään, jos on kirjauduttu sisään
         <div>
+
           <h2>Welcome, {userData?.display_name}</h2>
-            <SearchForm />
+          <img src={userData?.images?.[0]?.url} alt="Profile" />
+
+          <SearchForm />
+
           <div>
             <TrackSearch />
-          <div className='mt-8'>
-            <button onClick={logoutClick}>LOG OUT</button>
-          </div>
-          <div className='mt-8'>
-            <button onClick={testiTeppo}>TestiTEPPO???</button>
-          </div>
-          <div className='mt-8'>
-            <button onClick={hakuHarri}>HakuHARRI???</button>
-          </div>
+            <div className='mt-8'>
+              <button onClick={logoutClick}>LOG OUT</button>
+            </div>
+            <div className='mt-8'>
+              <button onClick={testiTeppo}>TestiTEPPO???</button>
+            </div>
+            <div className='mt-8'>
+              <button onClick={hakuHarri}>HakuHARRI???</button>
+            </div>
           </div>
         </div>
       )}
