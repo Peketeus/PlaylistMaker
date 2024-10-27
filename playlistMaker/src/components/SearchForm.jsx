@@ -24,7 +24,7 @@ const SearchForm = () => {
 
     return (
         <form onSubmit={handleSubmit}>
-            <div>
+            <div class='pt-8 pb-4'>
                 <label htmlFor='type'>Type: </label>
                 <select
                   id='type'
@@ -34,15 +34,16 @@ const SearchForm = () => {
                   <option value="track">Track</option>
                 </select>
               </div>
+            <fieldset className='grid grid-cols-[0.75fr_1fr] gap-3'>
             {/*Läjä hakukenttiä*/}
-            <InputField name="genre" inputValue={genre} setInputValue={setGenre} />
-            <InputField name="yearFrom" inputValue={yearFrom} setInputValue={setYearFrom} />
-            <InputField name="yearTo" inputValue={yearTo} setInputValue={setYearTo} />
-            <InputField name="minPopularity" inputValue={minPopularity} setInputValue={setMinPopularity} />
-            <InputField name="minDanceability" inputValue={minDanceability} setInputValue={setMinDanceability} />
-            <InputField name="minEnergyLevel" inputValue={minEnergyLevel} setInputValue={setMinEnergyLevel} />
-            <div>
-              <label htmlFor="limit">Limit: </label>
+              <label htmlFor='genre' className='text-right'>Genre: </label><InputField id='genre' name="genre" inputValue={genre} setInputValue={setGenre} />
+              <label htmlFor='yearFrom' className='text-right'>Mistä vuodesta: </label><InputField id='yearFrom' name="yearFrom" inputValue={yearFrom} setInputValue={setYearFrom} />
+              <label htmlFor='yearTo' className='text-right'>Mihin vuoteen: </label><InputField id='yearTo' name="yearTo" inputValue={yearTo} setInputValue={setYearTo} />
+              <label htmlFor='minPopularity' className='text-right'>minPopularity: </label><InputField id='minPopularity' name="minPopularity" inputValue={minPopularity} setInputValue={setMinPopularity} />
+              <label htmlFor='minDanceability' className='text-right'>minDanceability: </label><InputField id='minDanceability' name="minDanceability" inputValue={minDanceability} setInputValue={setMinDanceability} />
+              <label htmlFor='minEnergyLevel' className='text-right'>minEnergyLevel: </label><InputField id='minEnergyLevel' name="minEnergyLevel" inputValue={minEnergyLevel} setInputValue={setMinEnergyLevel} />
+
+              <label htmlFor="limit" className='text-right'>Limit: </label>
               <input
                 id="limit"
                 type="number"
@@ -62,18 +63,19 @@ const SearchForm = () => {
                   // Poistetaan kaikki ei-numeraaliset merkit
                   e.target.value = e.target.value.replace(/[^0-9]/g, "");
                 }}
+                className='w-1/2'
               />
-            </div>
-            <div>
-              <label htmlFor="createPlaylist">Create playlist? </label>
+
+              <label htmlFor="createPlaylist"className='text-right'>Create playlist? </label>
                 <input
+                  className='justify-self-start'
                   type="checkbox"
                   checked={createPlaylist}
                   onChange={(e) => {
                     setCreatePlaylist(e.target.checked);
                   }}
                 />
-            </div>
+            </fieldset>
 
             <br />
             <p>genre: pop, rock, metal, classical etc...</p>

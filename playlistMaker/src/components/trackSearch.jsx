@@ -10,7 +10,6 @@ function TrackSearch() {
   return (
     <div>
       <div className="w-fit mx-auto">
-      <p className='text-red-600 text-xl font-semibold pt-8'>Jos haku-ID:ssä on vikaa, niin sivu kaatuu. Päivitä sivu F5:lla palataksesi tähän näkymään.</p>
         <div className="flex flex-col items-center pt-24">
           <div className="flex-auto">
             <label htmlFor="hakukentta">Syötä haettavan kappaleen ID: <input ref={inputRef}
@@ -39,7 +38,6 @@ function TrackSearch() {
           <div className='flex flex-col items-center gap-4 mt-8'>
             <p>Kappaleen nimi: {searchResult.name} </p>
             <p>Artisti: {searchResult.artists[0].name}</p>
-            <img src={searchResult.album.images[1].url} alt="Albumin kuva"/>
           </div>
         </div>
       </div>

@@ -5,6 +5,21 @@
   text-align: center;
 }
 
+body {
+  /*background: linear-gradient(30deg, #d23c00 0%, #f48e21 40%, #23d5ab 100%);
+  background-size: 300%;
+  animation: bg-animation 5s infinite alternate;*/
+}
+
+@keyframes bg-animation {
+  0% {
+    background-position: left;
+  }
+  100% {
+    background-position: right;
+  }
+}
+
 .logo {
   height: 6em;
   padding: 1.5em;
@@ -30,6 +45,13 @@
 @media (prefers-reduced-motion: no-preference) {
   a:nth-of-type(2) .logo {
     animation: logo-spin infinite 20s linear;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body {
+    animation: none; /* remove background animation for users who prefer reduced motion (e.g. due vestibular motion disorder) */
+    background-size: 100%;
   }
 }
 
