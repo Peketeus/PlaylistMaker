@@ -178,12 +178,6 @@ export async function apiCall(params) {
   return await response.json();
 }
 
-// Merkitään haku tehdyksi jotta hakutulos-komponentti saadaan renderöidä, ja suoritetaan apikutsu
-export async function searchAndShowResult(stateSetter, params) {
-  stateSetter(true);
-  return apiCallClick(params);
-}
-
 export function testiTeppo(){
   if(isTokenExpired()) refreshTokenClick();
 }

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Routes, Route, useNavigate } from 'react-router-dom';
-import TrackSearch from './components/trackSearch';
+import SearchResults from './components/SearchResults';
 import './App.css';
 import { getToken, currentToken, getUserData, loginWithSpotifyClick, logoutClick, apiCallClick, testiTeppo, hakuHarri } from './service';
 import SearchForm from './components/SearchForm'
@@ -60,7 +60,7 @@ function App() {
           <SearchForm />
 
           <div>
-            <TrackSearch />
+            <SearchResults />
             <div className='mt-8'>
               <button onClick={logoutClick}>LOG OUT</button>
             </div>

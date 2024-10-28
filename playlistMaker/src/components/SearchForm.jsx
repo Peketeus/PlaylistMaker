@@ -24,7 +24,7 @@ const SearchForm = () => {
 
     return (
         <form onSubmit={handleSubmit}>
-            <div class='pt-8 pb-4'>
+            <div className='pt-8 pb-4'>
                 <label htmlFor='type'>Type: </label>
                 <select
                   id='type'
@@ -34,7 +34,7 @@ const SearchForm = () => {
                   <option value="track">Track</option>
                 </select>
               </div>
-            <fieldset className='grid grid-cols-[0.75fr_1fr] gap-3'>
+            <fieldset className=' w-[50%] m-[0_auto] grid grid-cols-[0.75fr_1fr] gap-3'>
             {/*Läjä hakukenttiä*/}
               <label htmlFor='genre' className='text-right'>Genre: </label><InputField id='genre' name="genre" inputValue={genre} setInputValue={setGenre} />
               <label htmlFor='yearFrom' className='text-right'>Mistä vuodesta: </label><InputField id='yearFrom' name="yearFrom" inputValue={yearFrom} setInputValue={setYearFrom} />
