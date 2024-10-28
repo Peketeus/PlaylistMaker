@@ -54,7 +54,7 @@ function App() {
         <div>
 
           <h2>Welcome, {userData?.display_name}</h2>
-          <img src={userData?.images?.[0]?.url} alt="Profile" />
+          <img src={userData?.images?.[0]?.url} />
 
           <SearchForm />
 
