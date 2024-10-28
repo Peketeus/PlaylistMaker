@@ -4,6 +4,7 @@ import TrackSearch from './components/trackSearch';
 import './App.css';
 import { getToken, currentToken, getUserData, loginWithSpotifyClick, logoutClick, apiCallClick, testiTeppo, hakuHarri } from './service';
 import SearchForm from './components/SearchForm'
+import SpotifyLogo from './assets/Primary_Logo_White_CMYK.svg';
 
 function App() {
   const [userData, setUserData] = useState(null);
@@ -72,6 +73,9 @@ function App() {
           </div>
         </div>
       )}
+      <div className='spotify-watermark'>
+        <p>Powered by</p><img src={SpotifyLogo} alt='Spotify' />
+      </div>
     </div>
   );
 }

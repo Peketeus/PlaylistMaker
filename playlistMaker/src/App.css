@@ -6,6 +6,7 @@
 }
 
 body {
+  position: relative;
   /*background: linear-gradient(30deg, #d23c00 0%, #f48e21 40%, #23d5ab 100%);
   background-size: 300%;
   animation: bg-animation 5s infinite alternate;*/
@@ -61,4 +62,23 @@ body {
 
 .read-the-docs {
   color: #888;
+}
+
+.spotify-watermark {
+  position: absolute;
+  right: 1rem;
+  bottom: 1rem;
+  margin-top: auto;
+  font-family: circular-black;
+}
+
+.spotify-watermark p {
+  display: inline-block;
+  margin-right: 0.5rem;
+}
+
+.spotify-watermark img {
+  display: inline-block;
+  height: 100px;
+  width: 100px;
 }
