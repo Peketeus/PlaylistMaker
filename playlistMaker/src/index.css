@@ -37,6 +37,18 @@
     line-height: 1.1;
     font-family: circular-black, sans-serif;
   }
+
+  .resultSong {
+    font-family: Sora;
+    text-align: left;
+    font-size: 1rem;
+  }
+
+  .resultArtist {
+    font-family: Sora;
+    text-align: left;
+    font-size: 0.8rem;
+  }
   
   button {
     border-radius: 8px;
@@ -85,4 +97,9 @@
   @font-face {
     font-family: 'open-sans';
     src: url('./assets/OpenSans.ttf') format('truetype');
+  }
+
+  @font-face {
+    font-family: 'Sora';
+    src: url('./assets/Sora.ttf') format('truetype');
   }

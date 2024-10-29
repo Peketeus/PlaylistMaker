@@ -356,6 +356,12 @@ async function getTracksByCriteria(params) {
     console.log("FOUND NO TRACKS --- RETURNING");
     return;
   }
+
+  return filteredTracks;
+
+  // ***************************************************************
+  // SOITTOLISTAN TEKO TEHTÄVÄ ERILLISEEN FUNKTIOON!!!
+  // ***************************************************************
   if (!params.createPlaylist) {
     console.log("NO PLAYLIST CREATION --- RETURNING");
     return;
@@ -497,5 +503,5 @@ export function search(genre, yearFrom, yearTo, minPopularity, minDanceability, 
     'limit': limit,
     'createPlaylist': createPlaylist,
     };
-  getTracksByCriteria(params);
+  return getTracksByCriteria(params);
 }

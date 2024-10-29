@@ -1,14 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { Routes, Route, useNavigate } from 'react-router-dom';
 import SearchResults from './components/SearchResults';
-import './App.css';
-import { getToken, currentToken, getUserData, loginWithSpotifyClick, logoutClick, apiCallClick, testiTeppo, hakuHarri } from './service';
 import SearchForm from './components/SearchForm'
+import './App.css';
+import { getToken, currentToken, getUserData, loginWithSpotifyClick, logoutClick, apiCallClick } from './service';
 import SpotifyLogo from './assets/Primary_Logo_White_CMYK.svg';
 
 function App() {
   const [userData, setUserData] = useState(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [searchResults, setSearchResults] = useState([]);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -49,7 +50,9 @@ function App() {
       <h1>PlaylistMaker</h1>
 
       {!isLoggedIn ? (
-        <button onClick={loginWithSpotifyClick}>Login with Spotify</button>
+        <div className='absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 m-0 p-0'> {/* Laitetaan nappi näytön keskelle */}
+          <button onClick={loginWithSpotifyClick}>Kirjaudu Spotifyyn</button>
+        </div>
       ) : (
         // Tämä näytetään, jos on kirjauduttu sisään
         <div>
@@ -57,18 +60,12 @@ function App() {
           <h2>Welcome, {userData?.display_name}</h2>
           <img src={userData?.images?.[0]?.url} />
 
-          <SearchForm />
+          <SearchForm setSearchResults={setSearchResults} />
 
           <div>
-            <SearchResults />
+            <SearchResults searchResults={searchResults} />
             <div className='mt-8'>
               <button onClick={logoutClick}>LOG OUT</button>
-            </div>
-            <div className='mt-8'>
-              <button onClick={testiTeppo}>TestiTEPPO???</button>
-            </div>
-            <div className='mt-8'>
-              <button onClick={hakuHarri}>HakuHARRI???</button>
             </div>
           </div>
         </div>

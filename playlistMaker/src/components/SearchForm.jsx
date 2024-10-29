@@ -3,7 +3,7 @@ import { apiCall } from '../service';
 import { search } from '../service';
 import InputField from './InputField' ;
 
-const SearchForm = () => {
+function SearchForm({ setSearchResults }) {
     const [type, setType] = useState('track')
     const [query, setQuery] = useState('')
     const [genre, setGenre] = useState('')    
@@ -16,10 +16,11 @@ const SearchForm = () => {
     const [createPlaylist, setCreatePlaylist] = useState(false);
 
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault() // Estää sivun uudelleenlataamisen
         // Vie kenttien arvot funktioon
-        search(genre, yearFrom, yearTo, minPopularity, minDanceability, minEnergyLevel, limit, createPlaylist);
+        const tracks = await search(genre, yearFrom, yearTo, minPopularity, minDanceability, minEnergyLevel, limit, createPlaylist);
+        setSearchResults(tracks);
       }
 
     return (
@@ -36,12 +37,12 @@ const SearchForm = () => {
               </div>
             <fieldset className=' w-[50%] m-[0_auto] grid grid-cols-[0.75fr_1fr] gap-3'>
             {/*Läjä hakukenttiä*/}
-              <label htmlFor='genre' className='text-right'>Genre: </label><InputField id='genre' name="genre" inputValue={genre} setInputValue={setGenre} />
-              <label htmlFor='yearFrom' className='text-right'>Mistä vuodesta: </label><InputField id='yearFrom' name="yearFrom" inputValue={yearFrom} setInputValue={setYearFrom} />
-              <label htmlFor='yearTo' className='text-right'>Mihin vuoteen: </label><InputField id='yearTo' name="yearTo" inputValue={yearTo} setInputValue={setYearTo} />
-              <label htmlFor='minPopularity' className='text-right'>minPopularity: </label><InputField id='minPopularity' name="minPopularity" inputValue={minPopularity} setInputValue={setMinPopularity} />
-              <label htmlFor='minDanceability' className='text-right'>minDanceability: </label><InputField id='minDanceability' name="minDanceability" inputValue={minDanceability} setInputValue={setMinDanceability} />
-              <label htmlFor='minEnergyLevel' className='text-right'>minEnergyLevel: </label><InputField id='minEnergyLevel' name="minEnergyLevel" inputValue={minEnergyLevel} setInputValue={setMinEnergyLevel} />
+              <label htmlFor='genre' className='text-right'>Genre: </label><InputField name="genre" inputValue={genre} setInputValue={setGenre} />
+              <label htmlFor='yearFrom' className='text-right'>Mistä vuodesta: </label><InputField name="yearFrom" inputValue={yearFrom} setInputValue={setYearFrom} />
+              <label htmlFor='yearTo' className='text-right'>Mihin vuoteen: </label><InputField name="yearTo" inputValue={yearTo} setInputValue={setYearTo} />
+              <label htmlFor='minPopularity' className='text-right'>minPopularity: </label><InputField name="minPopularity" inputValue={minPopularity} setInputValue={setMinPopularity} />
+              <label htmlFor='minDanceability' className='text-right'>minDanceability: </label><InputField name="minDanceability" inputValue={minDanceability} setInputValue={setMinDanceability} />
+              <label htmlFor='minEnergyLevel' className='text-right'>minEnergyLevel: </label><InputField name="minEnergyLevel" inputValue={minEnergyLevel} setInputValue={setMinEnergyLevel} />
 
               <label htmlFor="limit" className='text-right'>Limit: </label>
               <input
