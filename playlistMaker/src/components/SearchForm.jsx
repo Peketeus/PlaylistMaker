@@ -67,7 +67,7 @@ function SearchForm({ setSearchResults }) {
                 className='w-1/2'
               />
 
-              <label htmlFor="createPlaylist"className='text-right'>Create playlist? </label>
+              <label htmlFor="createPlaylist"className='text-right'>Create playlist? ***TÄMÄ PITÄÄ POISTAA*** </label>
                 <input
                   className='justify-self-start'
                   type="checkbox"

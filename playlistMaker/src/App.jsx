@@ -58,7 +58,7 @@ function App() {
         <div>
 
           <h2>Welcome, {userData?.display_name}</h2>
-          <img src={userData?.images?.[0]?.url} />
+          <img className='m-[0_auto] max-w-[6%] max-h-[auto]' src={userData?.images?.[0]?.url} />
 
           <SearchForm setSearchResults={setSearchResults} />
 
@@ -71,7 +71,7 @@ function App() {
         </div>
       )}
       <div className='spotify-watermark'>
-        <p>Powered by</p><img src={SpotifyLogo} alt='Spotify' />
+        <p>Powered by</p><img src={SpotifyLogo} alt='Spotify' /> {/* TODO: mobiiliystävälliseksi */}
       </div>
     </div>
   );
