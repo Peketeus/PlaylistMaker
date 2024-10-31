@@ -178,12 +178,6 @@ export async function apiCall(params) {
   return await response.json();
 }
 
-// Merkitään haku tehdyksi jotta hakutulos-komponentti saadaan renderöidä, ja suoritetaan apikutsu
-export async function searchAndShowResult(stateSetter, params) {
-  stateSetter(true);
-  return apiCallClick(params);
-}
-
 export function testiTeppo(){
   if(isTokenExpired()) refreshTokenClick();
 }
@@ -362,6 +356,12 @@ async function getTracksByCriteria(params) {
     console.log("FOUND NO TRACKS --- RETURNING");
     return;
   }
+
+  return filteredTracks;
+
+  // ***************************************************************
+  // SOITTOLISTAN TEKO TEHTÄVÄ ERILLISEEN FUNKTIOON!!!
+  // ***************************************************************
   if (!params.createPlaylist) {
     console.log("NO PLAYLIST CREATION --- RETURNING");
     return;
@@ -503,5 +503,5 @@ export function search(genre, yearFrom, yearTo, minPopularity, minDanceability, 
     'limit': limit,
     'createPlaylist': createPlaylist,
     };
-  getTracksByCriteria(params);
+  return getTracksByCriteria(params);
 }

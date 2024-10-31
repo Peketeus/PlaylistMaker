@@ -3,7 +3,7 @@ import { apiCall } from '../service';
 import { search } from '../service';
 import InputField from './InputField' ;
 
-const SearchForm = () => {
+function SearchForm({ setSearchResults }) {
     const [type, setType] = useState('track')
     const [query, setQuery] = useState('')
     const [genre, setGenre] = useState('')    
@@ -16,15 +16,16 @@ const SearchForm = () => {
     const [createPlaylist, setCreatePlaylist] = useState(false);
 
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault() // Estää sivun uudelleenlataamisen
         // Vie kenttien arvot funktioon
-        search(genre, yearFrom, yearTo, minPopularity, minDanceability, minEnergyLevel, limit, createPlaylist);
+        const tracks = await search(genre, yearFrom, yearTo, minPopularity, minDanceability, minEnergyLevel, limit, createPlaylist);
+        setSearchResults(tracks);
       }
 
     return (
         <form onSubmit={handleSubmit}>
-            <div>
+            <div className='pt-8 pb-4'>
                 <label htmlFor='type'>Type: </label>
                 <select
                   id='type'
@@ -34,15 +35,16 @@ const SearchForm = () => {
                   <option value="track">Track</option>
                 </select>
               </div>
+            <fieldset className=' w-[50%] m-[0_auto] grid grid-cols-[0.75fr_1fr] gap-3'>
             {/*Läjä hakukenttiä*/}
-            <InputField name="genre" inputValue={genre} setInputValue={setGenre} />
-            <InputField name="yearFrom" inputValue={yearFrom} setInputValue={setYearFrom} />
-            <InputField name="yearTo" inputValue={yearTo} setInputValue={setYearTo} />
-            <InputField name="minPopularity" inputValue={minPopularity} setInputValue={setMinPopularity} />
-            <InputField name="minDanceability" inputValue={minDanceability} setInputValue={setMinDanceability} />
-            <InputField name="minEnergyLevel" inputValue={minEnergyLevel} setInputValue={setMinEnergyLevel} />
-            <div>
-              <label htmlFor="limit">Limit: </label>
+              <label htmlFor='genre' className='text-right'>Genre: </label><InputField name="genre" inputValue={genre} setInputValue={setGenre} />
+              <label htmlFor='yearFrom' className='text-right'>Mistä vuodesta: </label><InputField name="yearFrom" inputValue={yearFrom} setInputValue={setYearFrom} />
+              <label htmlFor='yearTo' className='text-right'>Mihin vuoteen: </label><InputField name="yearTo" inputValue={yearTo} setInputValue={setYearTo} />
+              <label htmlFor='minPopularity' className='text-right'>minPopularity: </label><InputField name="minPopularity" inputValue={minPopularity} setInputValue={setMinPopularity} />
+              <label htmlFor='minDanceability' className='text-right'>minDanceability: </label><InputField name="minDanceability" inputValue={minDanceability} setInputValue={setMinDanceability} />
+              <label htmlFor='minEnergyLevel' className='text-right'>minEnergyLevel: </label><InputField name="minEnergyLevel" inputValue={minEnergyLevel} setInputValue={setMinEnergyLevel} />
+
+              <label htmlFor="limit" className='text-right'>Limit: </label>
               <input
                 id="limit"
                 type="number"
@@ -62,18 +64,19 @@ const SearchForm = () => {
                   // Poistetaan kaikki ei-numeraaliset merkit
                   e.target.value = e.target.value.replace(/[^0-9]/g, "");
                 }}
+                className='w-1/2'
               />
-            </div>
-            <div>
-              <label htmlFor="createPlaylist">Create playlist? </label>
+
+              <label htmlFor="createPlaylist"className='text-right'>Create playlist? ***TÄMÄ PITÄÄ POISTAA*** </label>
                 <input
+                  className='justify-self-start'
                   type="checkbox"
                   checked={createPlaylist}
                   onChange={(e) => {
                     setCreatePlaylist(e.target.checked);
                   }}
                 />
-            </div>
+            </fieldset>
 
             <br />
             <p>genre: pop, rock, metal, classical etc...</p>

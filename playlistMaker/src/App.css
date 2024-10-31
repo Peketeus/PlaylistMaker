@@ -1,8 +1,24 @@
 #root {
-  max-width: 1280px;
+  max-width: 100vw;
   margin: 0 auto;
   padding: 2rem;
   text-align: center;
+}
+
+body {
+  position: relative;
+  /*background: linear-gradient(30deg, #d23c00 0%, #f48e21 40%, #23d5ab 100%);
+  background-size: 300%;
+  animation: bg-animation 5s infinite alternate;*/
+}
+
+@keyframes bg-animation {
+  0% {
+    background-position: left;
+  }
+  100% {
+    background-position: right;
+  }
 }
 
 .logo {
@@ -33,10 +49,36 @@
   }
 }
 
+@media (prefers-reduced-motion: reduce) {
+  body {
+    animation: none; /* remove background animation for users who prefer reduced motion (e.g. due vestibular motion disorder) */
+    background-size: 100%;
+  }
+}
+
 .card {
   padding: 2em;
 }
 
 .read-the-docs {
   color: #888;
+}
+
+.spotify-watermark {
+  position: absolute;
+  right: 1rem;
+  bottom: 1rem;
+  margin-top: auto;
+  font-family: circular-black;
+}
+
+.spotify-watermark p {
+  display: inline-block;
+  margin-right: 0.5rem;
+}
+
+.spotify-watermark img {
+  display: inline-block;
+  height: 100px;
+  width: 100px;
 }
