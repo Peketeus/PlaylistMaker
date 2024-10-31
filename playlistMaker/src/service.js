@@ -103,21 +103,16 @@ export function isTokenExpired() { // TODO: exportin voi ottaa pois ku ei enää
   if (!expiresAtString) {
     // const token = await refreshToken();
     // currentToken.save(token);
-    console.log("Tokeni pitää virkistää!<3"); //rmv
     return true;
   }
   const expiresAt = new Date(expiresAtString);
   const currentTime = new Date(); 
-
   if (currentTime > expiresAt){
     // const token = await refreshToken();
     // currentToken.save(token);
-    console.log("Tokeni pitää virkistää!"); //rmv
     return true;
-  } else {
-    console.log("Tokenia ei tarvitse virkistää. Virkistetään tämän kellonajan jälkeen: " + expiresAtString); //rmv
-    return false;
   }
+  return false;
 }
 
 // Function to get the current user's data
@@ -188,7 +183,7 @@ async function searchTracksByCriteria(url, accessToken) {
   //const url = `https://api.spotify.com/v1/search?q=genre:${genre}%20year:${yearFrom}-${yearTo}&type=track&limit=${limit}&offset=${offset}`;
 
   // Log the URL for debugging
-  console.log('Fetching URL:', url);
+  console.log('FETCHING URL:', url);
 
   const response = await fetch(url, {
       method: 'GET',
@@ -533,10 +528,10 @@ const limit = 50; // Number of tracks to fetch
 //const _createPlaylist = false; // If a playlist is created
 const random = true; // otetaanko random biisit vai samat
 
-export function hakuHarri() {
+export async function hakuHarri() {
   search(genre, yearFrom, yearTo, minPopularity, minDanceability, minEnergyLevel, limit);
 }
 
-export function search(params) {
+export async function search(params) {
   return getTracksByCriteria(params);
 }
