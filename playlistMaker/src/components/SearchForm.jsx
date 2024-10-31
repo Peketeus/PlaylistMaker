@@ -5,9 +5,8 @@ import Genres from '../resources/genres.json'
 
 function SearchForm({ setSearchResults }) {
     const [type, setType] = useState('track')
-    //const [query, setQuery] = useState('') // Tämän voi poistaa?
     const [genre, setGenre] = useState('')
-    const [filteredGenres, setFilteredGenres] = useState([]) // Suodatetut genret
+    const [filteredGenres, setFilteredGenres] = useState([])
     const [limit, setLimit] = useState('')
     const [yearFrom, setYearFrom] = useState('')
     const [yearTo, setYearTo] = useState('')
@@ -24,17 +23,17 @@ function SearchForm({ setSearchResults }) {
 
     //const [createPlaylist, setCreatePlaylist] = useState(false)
 
-    // Tämä on tässä genresuodatusta varten
+    // Filter what genres the search box offers upon user input
     useEffect(() => {
       if (genre) {
         const results = Genres.filter(g =>
           g.name.toLowerCase().includes(genre.toLowerCase())
-        ).slice(0, 1500) // Tätä säätämällä voi muokata max osumien näytön määrää
+        ).slice(0, 1500) // Adjust 2nd parameter to show more genre matches
         setFilteredGenres(results);
       } else {
-          setFilteredGenres([]); // Tyhjentää listan, jos genrekenttä on tyhjä
+          setFilteredGenres([]); // If the genre-field is empty, empty the list
       }
-    }, [genre]); // Suodatetaan joka kerta kun 'genre' muuttuu
+    }, [genre]); // Do filtering each time the genre-variable changes
 
     const handleSubmit = async (e) => {
         e.preventDefault()
@@ -74,9 +73,8 @@ function SearchForm({ setSearchResults }) {
                 </select>
               </div>
             <fieldset className=' w-[50%] m-[0_auto] grid grid-cols-[0.75fr_1fr] gap-3'>
-            {/*Läjä hakukenttiä*/}
 
-              {/* Genre-hakukenttä */}
+              {/* Search field for genre */}
               <label htmlFor='genre' className='text-right'>Genre: </label>
               <input
                 type="text"
@@ -84,8 +82,7 @@ function SearchForm({ setSearchResults }) {
                 id="genre"
                 value={genre}
                 onChange={(e) => setGenre(e.target.value)}
-                placeholder="Hae genreä..."
-                className='w-1/2 min-w-[10em]'
+                className="w-1/2 min-w-[10em]"
               />
               <datalist id="genre-options">
                 {filteredGenres.map((g) => (
@@ -93,11 +90,9 @@ function SearchForm({ setSearchResults }) {
                 ))}
               </datalist>
 
-              {/* Input fiels */}
-              <label htmlFor='yearFrom' className='text-right'>Mistä vuodesta: </label><InputField name="yearFrom" inputValue={yearFrom} setInputValue={setYearFrom} />
-              <label htmlFor='yearTo' className='text-right'>Mihin vuoteen: </label><InputField name="yearTo" inputValue={yearTo} setInputValue={setYearTo} />
-
-              {/* Filters */}
+              {/* Other input fields */}
+              <label htmlFor='yearFrom' className='text-right'>From (year): </label><InputField name="yearFrom" inputValue={yearFrom} setInputValue={setYearFrom} />
+              <label htmlFor='yearTo' className='text-right'>To (year): </label><InputField name="yearTo" inputValue={yearTo} setInputValue={setYearTo} />
               <label htmlFor='minPopularity' className='text-right'>minPopularity: </label><InputField name="minPopularity" inputValue={minPopularity} setInputValue={setMinPopularity} />
               <label htmlFor='minDanceability' className='text-right'>minDanceability: </label><InputField name="minDanceability" inputValue={minDanceability} setInputValue={setMinDanceability} />
               <label htmlFor='minEnergyLevel' className='text-right'>minEnergyLevel: </label><InputField name="minEnergyLevel" inputValue={minEnergyLevel} setInputValue={setMinEnergyLevel} />
@@ -117,7 +112,8 @@ function SearchForm({ setSearchResults }) {
                 value={limit}
                 onChange={(e) => {
                   const value = e.target.value;
-                  // Jos kenttä on tyhjä, salli null-arvo
+
+                  // If field is empty, allow null-value
                   if (value === "" || (value >= 1 && value <= 50)) {
                     setLimit(value);
                   }
@@ -127,7 +123,7 @@ function SearchForm({ setSearchResults }) {
                 max="50"
                 //required="required"
                 onInput={(e) => {
-                  // Poistetaan kaikki ei-numeraaliset merkit
+                  // Remove all non-numbers
                   e.target.value = e.target.value.replace(/[^0-9]/g, "");
                 }}
                 className='w-1/2'
@@ -144,7 +140,7 @@ function SearchForm({ setSearchResults }) {
             <p>limit: number of tracks at most</p>
             {/*TODO: poistetaan tämä<----*/}
             <br />
-            <button type="submit">HAE</button>
+            <button type="submit">Search</button>
         </form>
     )
 }

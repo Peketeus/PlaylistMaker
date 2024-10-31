@@ -1,7 +1,6 @@
 function InputField({ name, inputValue, setInputValue }) {
     return (
       <div className='flex justify-start content-center'>
-        {/* <label htmlFor={name}>{name.charAt(0).toUpperCase() + name.slice(1)}: </label> */} {/* Tämä poistoon imo */}
         <input
           id={name}
           type="text"

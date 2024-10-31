@@ -8,22 +8,22 @@ function AudioPlayer({ previewUrl, onPlay }) {
 
   useEffect(() => {
     if (audioRef.current) {
-      audioRef.current.volume = 0.2; // Asetetaan äänenvoimakkuus itse koska se on vakiona niin kovalla että naapuritkin heräävät
+      audioRef.current.volume = 0.2; // Set default volume manually as browser sets it very high by default
     }
   }, []);
 
   const handlePlay = () => {
-    if (onPlay) onPlay(audioRef.current); // Seurataan mikä elementti soittaa tällä hetkellä musiikkia
+    if (onPlay) onPlay(audioRef.current);
   };
 
   if (!previewUrl) {
-    return <p className='flex-[0_1_350px] min-w-[250px]'>No audio preview available.</p>;
+    return <p className='flex-[0_1_350px] min-w-[250px]'>Preview not available.</p>;
   }
 
   return (
     <audio className='flex-[0_1_350px] min-w-[250px]' ref={audioRef} controls onPlay={handlePlay}>
       <source src={previewUrl} type="audio/mpeg" />
-      Your browser doesn't support this audio file.
+      Your browser does not support this filetype.
     </audio>
   );
 }
@@ -33,7 +33,7 @@ function SearchResults({ searchResults }) {
   const [isCreating, setIsCreating] = useState(false); // Whether the playlist is being created
 
   const handlePlay = (audioElement) => {
-    // Jos soi jo audio, niin edellinen pauselle
+    // If audio is already playing, pause the previous audio before playing the selected one
     if (currentlyPlaying && currentlyPlaying !== audioElement) {
       currentlyPlaying.pause();
     }
@@ -52,12 +52,11 @@ function SearchResults({ searchResults }) {
 
   return (
     <div className='pt-8'>
-      {/* Näytetään hakutulokset, jos tuloksia on */}
 
       {searchResults && searchResults.length > 0 ? (
         <div>
           <div className='relative min-w-[700px] max-w-[min(900px,60%)] h-auto mx-auto bg-[#272b36] py-8'>
-          <h2 className='text-4xl font-bold'>Results:</h2>
+          <h2 className='text-4xl font-bold'>Search Results:</h2>
           {/* Changing button appearance based on the state */}
           <button 
             className= {`absolute top-0 right-0 mt-4 mr-4 px-4 py-2 font-semibold rounded transition duration-300

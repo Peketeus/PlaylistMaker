@@ -1,4 +1,4 @@
-const clientId = import.meta.env.VITE_API_CLIENT_ID;  // Tulee .env tiedostosta, mikä pitää olla juuressa.
+const clientId = import.meta.env.VITE_API_CLIENT_ID;  // Comes from .env file that has to be in root folder
 const redirectUrl = 'http://localhost:5173/';  // Make sure this matches your Spotify redirect URL
 
 const authorizationEndpoint = "https://accounts.spotify.com/authorize";
@@ -97,8 +97,8 @@ export async function refreshToken() {
   return await response.json();
 }
 
-//  Functio tarkistaa onko tokeni vanhentunut ja jos on niin päivittää uuteen.Tuleeko toimimaan toisen päivityksen jälkeen? //TODO :Jätetään tähän vain tarkistus että tarviiko virkistää ja sitte palauttaa true tai false ja tämän jälkee siellä muualla voidaa kutsua refreshToken. Helpompilukusta syntaxia?
-export function isTokenExpired() { // TODO: exportin voi ottaa pois ku ei enää testaile nappulalla
+// Function checks if access token is expired
+function isTokenExpired() {
   const expiresAtString = currentToken.expires;
   if (!expiresAtString) {
     // const token = await refreshToken();
@@ -130,7 +130,7 @@ export async function loginWithSpotifyClick() {
   await redirectToSpotifyAuthorize();
 }
 
-// Kirjautuu ulos painiketta painamalla
+// Log out via button click
 export async function logoutClick() {
   localStorage.clear();
   window.location.href = redirectUrl;
@@ -146,13 +146,15 @@ export async function refreshTokenClick() {
 //-------------------------------------------------------------------------------------------
 // Laitetaan meidän omat funktiot tästä alas, niin ei mene tuohon authorization 
 // koodin sekaan meidän omaa turhan paljon.
+// ***POISTETAAN TÄMÄ KOMMENTTI LOPUSSA***
+//-------------------------------------------------------------------------------------------
 
-// tekee apikutsun nappia painamalla
+// TODO: delete?
 export async function apiCallClick(params) {
-  console.log("Api call parametrilla: ", params)
+  console.log("API call with parameters: ", params)
 
 
-  // yhdistää yksittäisen biisin hakuun id:n (params)
+  // Search for a single song with song ID (params)
   const endpoint = "https://api.spotify.com/v1/tracks/".concat(params)
 
   const track = await apiCall(endpoint)
@@ -162,19 +164,15 @@ export async function apiCallClick(params) {
   return track;
 }
 
-// apikutsu. Muut funktiot luovat osoitteen, jonka jälkeen tätä kutsutaan
+// API call with URL constructed by helper functions
 export async function apiCall(params) {
-  if (isTokenExpired()) refreshTokenClick(); // TODO: Tokenrefresher ei tainnu virkistää tokenia oikeassa järjestyksessä. Yritti hakea biisua ja sitte vasta virkisti tokenin? pitää kahtoa asiaa uudestaa.
+  if (isTokenExpired()) refreshTokenClick();
   const response = await fetch(params, {
     method: 'GET',
     headers: { 'Authorization': 'Bearer ' + currentToken.access_token },
   });
 
   return await response.json();
-}
-
-export function testiTeppo(){
-  if(isTokenExpired()) refreshTokenClick();
 }
 
 // Function to search for tracks based on genre and year range
@@ -445,7 +443,7 @@ function featuresAsObj(audioFeatures) {
 }
 
 /**
- * Constructs a formated date for current time
+ * Constructs a formatted date for current time
  * @returns formatted date
  */
 function constructDateNow() {
@@ -516,21 +514,17 @@ if (!response.ok){
   return data;
 }
 
-// Example usage:                                                                                   //???? JERJEJREJJREJRE
+// Example usage:
 //const accessToken = 'YOUR_SPOTIFY_ACCESS_TOKEN';  //? currentToken.access_token
-const genre = 'pop'; // The genre you want to search
-const yearFrom = '2000'; // Starting year of range
-const yearTo = '2010'; // Ending year of range
-const minPopularity = '0'; // Minimum popularity threshold
-const minDanceability = '0.5'; // Minimum danceability
-const minEnergyLevel = '0.3'; // Minimum energy
-const limit = 50; // Number of tracks to fetch
+//const genre = 'pop'; // The genre you want to search
+//const yearFrom = '2000'; // Starting year of range
+//const yearTo = '2010'; // Ending year of range
+//const minPopularity = '0'; // Minimum popularity threshold
+//const minDanceability = '0.5'; // Minimum danceability
+//const minEnergyLevel = '0.3'; // Minimum energy
+//const limit = 50; // Number of tracks to fetch
 //const _createPlaylist = false; // If a playlist is created
-const random = true; // otetaanko random biisit vai samat
-
-export async function hakuHarri() {
-  search(genre, yearFrom, yearTo, minPopularity, minDanceability, minEnergyLevel, limit);
-}
+const random = true; // Random songs or the same ones as before TODO: move to a more sensible place
 
 export async function search(params) {
   return getTracksByCriteria(params);
