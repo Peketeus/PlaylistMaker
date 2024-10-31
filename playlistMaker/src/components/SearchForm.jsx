@@ -1,27 +1,40 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { apiCall } from '../service';
 import { search } from '../service';
-import InputField from './InputField' ;
+import InputField from './InputField';
+import Genres from '../resources/genres.json'
 
 function SearchForm({ setSearchResults }) {
     const [type, setType] = useState('track')
-    const [query, setQuery] = useState('')
-    const [genre, setGenre] = useState('')    
+    const [query, setQuery] = useState('') // Tämän voi poistaa?
+    const [genre, setGenre] = useState('')
+    const [filteredGenres, setFilteredGenres] = useState([]) // Suodatetut genret
     const [limit, setLimit] = useState('')
     const [yearFrom, setYearFrom] = useState('')
     const [yearTo, setYearTo] = useState('')
     const [minPopularity, setMinPopularity] = useState('')
     const [minDanceability, setMinDanceability] = useState('')
     const [minEnergyLevel, setMinEnergyLevel] = useState('')
-    const [createPlaylist, setCreatePlaylist] = useState(false);
+    const [createPlaylist, setCreatePlaylist] = useState(false)
 
+    // Tämä on tässä genresuodatusta varten
+    useEffect(() => {
+      if (genre) {
+        const results = Genres.filter(g =>
+          g.name.toLowerCase().includes(genre.toLowerCase())
+        ).slice(0, 10) // Tätä säätämällä voi muokata max osumien näytön määrää
+        setFilteredGenres(results);
+      } else {
+          setFilteredGenres([]); // Tyhjentää listan, jos genrekenttä on tyhjä
+      }
+    }, [genre]); // Suodatetaan joka kerta kun 'genre' muuttuu
 
     const handleSubmit = async (e) => {
         e.preventDefault() // Estää sivun uudelleenlataamisen
         // Vie kenttien arvot funktioon
         const tracks = await search(genre, yearFrom, yearTo, minPopularity, minDanceability, minEnergyLevel, limit, createPlaylist);
         setSearchResults(tracks);
-      }
+    }
 
     return (
         <form onSubmit={handleSubmit}>
@@ -37,7 +50,25 @@ function SearchForm({ setSearchResults }) {
               </div>
             <fieldset className=' w-[50%] m-[0_auto] grid grid-cols-[0.75fr_1fr] gap-3'>
             {/*Läjä hakukenttiä*/}
-              <label htmlFor='genre' className='text-right'>Genre: </label><InputField name="genre" inputValue={genre} setInputValue={setGenre} />
+
+              {/* Genre-hakukenttä */}
+              <label htmlFor='genre' className='text-right'>Genre: </label>
+              <input
+                type="text"
+                list="genre-options"
+                id="genre"
+                value={genre}
+                onChange={(e) => setGenre(e.target.value)}
+                placeholder="Hae genreä..."
+                className='w-full'
+              />
+              <datalist id="genre-options">
+                {filteredGenres.map((g) => (
+                  <option key={g.id} value={g.name} />
+                ))}
+              </datalist>
+
+              {/* Muut hakukentät */}
               <label htmlFor='yearFrom' className='text-right'>Mistä vuodesta: </label><InputField name="yearFrom" inputValue={yearFrom} setInputValue={setYearFrom} />
               <label htmlFor='yearTo' className='text-right'>Mihin vuoteen: </label><InputField name="yearTo" inputValue={yearTo} setInputValue={setYearTo} />
               <label htmlFor='minPopularity' className='text-right'>minPopularity: </label><InputField name="minPopularity" inputValue={minPopularity} setInputValue={setMinPopularity} />
