@@ -182,7 +182,6 @@ export function testiTeppo(){
   if(isTokenExpired()) refreshTokenClick();
 }
 
-
 // Function to search for tracks based on genre and year range
 async function searchTracksByCriteria(url, accessToken) {
   // Fixed URL without popularity (Spotify API doesn't support direct popularity filtering in search)
@@ -225,7 +224,14 @@ function filterTracksByFilters(tracks, audio_features, filters) {
       return (
       track.popularity >= filters.minPopularity &&
       audio_features[track.id].danceability >= filters.minDanceability &&
-      audio_features[track.id].energy >= filters.minEnergyLevel
+      audio_features[track.id].energy >= filters.minEnergyLevel &&
+      audio_features[track.id].acousticness >= filters.minAcousticness &&
+      audio_features[track.id].instrumentalness >= filters.minInstrumentalness &&
+      audio_features[track.id].liveness >= filters.minLiveness &&
+      audio_features[track.id].loudness >= filters.minLoudness &&
+      audio_features[track.id].speechiness >= filters.minSpeechiness &&
+      audio_features[track.id].tempo >= filters.minTempo &&
+      audio_features[track.id].valence >= filters.minValence
       );
     }
     // Here is whether to include a track that has no matching audio feature
@@ -271,6 +277,13 @@ function constructURL(params, offset) {
   const defaultMinPopularity = 0;
   const defaultMinDanceability = 0;
   const defaultMinEnergyLevel = 0;
+  const defaultMinAcousticness = 0;
+  const defaultMinInstrumentalness = 0;
+  const defaultMinLiveness = 0;
+  const defaultMinLoudness = -60; // In decibels, maybe lower?
+  const defaultMinSpeechiness = 0;
+  const defaultMinTempo = 0; // 50 very slow, but keep at 0?
+  const defaultMinValence = 0;
   const defaultLimit = 50;
 
   // Sanitized inputs for the api call
@@ -278,15 +291,31 @@ function constructURL(params, offset) {
   const sanitizedYearFrom = params.yearFrom ? parseInt(params.yearFrom.trim()) : defaultYearFrom;
   const sanitizedYearTo = params.yearTo ? parseInt(params.yearTo.trim()) : defaultYearTo;
 
-  const sanitizedMinPopularity = params.minPopularity ? parseInt(params.minPopularity.trim()) : defaultMinPopularity;
-  const sanitizedMinDanceability = params.minDanceability ? parseFloat(params.minDanceability.trim()) : defaultMinDanceability;
-  const sanitizedMinEnergyLevel = params.minEnergyLevel ? parseFloat(params.minEnergyLevel.trim()) : defaultMinEnergyLevel;
-
   // Filters
+  const sanitizedMinPopularity = params.filters.minPopularity ? parseInt(params.filters.minPopularity.trim()) : defaultMinPopularity;
+  const sanitizedMinDanceability = params.filters.minDanceability ? parseFloat(params.filters.minDanceability.trim()) : defaultMinDanceability;
+  const sanitizedMinEnergyLevel = params.filters.minEnergyLevel ? parseFloat(params.filters.minEnergyLevel.trim()) : defaultMinEnergyLevel;
+  const sanitizedMinAcousticness = params.filters.minAcousticness ? parseFloat(params.filters.minAcousticness.trim()) : defaultMinAcousticness;
+  const sanitizedMinInstrumentalness = params.filters.minInstrumentalness ? parseFloat(params.filters.minInstrumentalness.trim()) : defaultMinInstrumentalness;
+  const sanitizedMinLiveness = params.filters.minLiveness ? parseFloat(params.filters.minLiveness.trim()) : defaultMinLiveness;
+  const sanitizedMinLoudness = params.filters.minLoudness ? parseFloat(params.filters.minLoudness.trim()) : defaultMinLoudness;
+  const sanitizedMinSpeechiness = params.filters.minSpeechiness ? parseFloat(params.filters.minSpeechiness.trim()) : defaultMinSpeechiness;
+  const sanitizedMinTempo = params.filters.minTempo ? parseFloat(params.filters.minTempo.trim()) : defaultMinTempo;
+  const sanitizedMinValence = params.filters.minValence ? parseFloat(params.filters.minValence.trim()) : defaultMinValence;
+
+  // Filters, same as when constructing them in SearchForm
+  // TODO: consider just changing the params and not create a new one
   const filters = {
     'minPopularity': sanitizedMinPopularity,
     'minDanceability': sanitizedMinDanceability,
     'minEnergyLevel': sanitizedMinEnergyLevel,
+    'minAcousticness': sanitizedMinAcousticness,
+    'minInstrumentalness': sanitizedMinInstrumentalness,
+    'minLiveness': sanitizedMinLiveness,
+    'minLoudness': sanitizedMinLoudness,
+    'minSpeechiness': sanitizedMinSpeechiness,
+    'minTempo': sanitizedMinTempo,
+    'minValence': sanitizedMinValence,
   }
 
   // Currently per api call
@@ -315,9 +344,11 @@ function constructURL(params, offset) {
   };;
 }
 
-// const minDanceability = 0.1; //between 0-1 the level is higher than the number
-// const minEnergyLevel = 0.1;
-// Combine everything together and filter by minPopularity, minDanceability and minEnergy
+/**
+ * Gets tracks and filters through them with given parameters
+ * @param {Object} params 
+ * @returns {Array} filtered tracks
+ */
 async function getTracksByCriteria(params) {
   // Refresh token if needed
   if (isTokenExpired()) await refreshTokenClick();
@@ -336,25 +367,30 @@ async function getTracksByCriteria(params) {
   // Step 2: Sanitize inputs and construct url as well as filters
   const sanitized = constructURL(params, randomOffset);
 
-  // Step 3: Search for tracks by genre and year range (popularity , minDanceability and minEnergy level will be filtered manually)
+  // Step 3: Search for tracks by genre and year range, filtering later
   const tracks = await searchTracksByCriteria(sanitized.url, accessToken);
   console.log("TRACKS: ", tracks);
+  if (tracks.length === 0) {
+    console.log("%cFOUND NO TRACKS --- RETURNING []", "color:red;");
+    return [];
+  }
 
   // Step 4: Fetch audio features and convert them to a more appropriate format
   const trackIds = tracks.map(track => track.id);
   const audioFeatures = await fetchAudioFeatures(trackIds, accessToken);
   console.log("AUDIO FEATURES:", audioFeatures);
 
+  // Convert audio features to a better format
   const featuresObj = featuresAsObj(audioFeatures);
-  console.log("FEATURES AS OBJ:", featuresObj);
+  //console.log("FEATURES AS OBJ:", featuresObj);
 
   // Step 5: Filter tracks by all filters
   const filteredTracks = filterTracksByFilters(tracks, featuresObj, sanitized.filters);
   console.log('FILTERED TRACKS', filteredTracks);
 
   if (filteredTracks.length === 0) {
-    console.log("FOUND NO TRACKS --- RETURNING");
-    return;
+    console.log("%cFILTERING PRODUCED 0 VALID TRACKS --- RETURNING []", "color:yellow;");
+    return [];
   }
 
   return filteredTracks;
@@ -392,7 +428,7 @@ export async function makePlaylist(filteredTracks/*, sanitized*/) {
   // A new one is generated every time the playlist is modified.
   // Useful when modifying playlists as it works as a guarantee
   // you are working with the latest version.
-  console.log("SNAPSHOT:", playlist_snapshot);
+  //console.log("SNAPSHOT:", playlist_snapshot);
 
   // TODO: return something to tell the user the playlist was created
   // Maybe the link to it?
@@ -402,7 +438,7 @@ export async function makePlaylist(filteredTracks/*, sanitized*/) {
 /**
  * Constructs audiofeatures in an object format
  * @param {Array} audioFeatures 
- * @returns object which has key as track id and value feature
+ * @returns object -> track_id: feature
  */
 function featuresAsObj(audioFeatures) {
   return audioFeatures.reduce((obj, feature) => {
@@ -467,7 +503,7 @@ async function createPlaylistSpotify(user_id, name, description, _public) {
 async function addTracksToPlaylist(playlist, tracks) {
   // Correct format
   const track_uris = tracks.map(track => `spotify:track:${track.id}`);
-  console.log("TRACK URIS:", track_uris);
+  //console.log("TRACK URIS:", track_uris);
   const response = await fetch(`https://api.spotify.com/v1/playlists/${playlist.id}/tracks`, {
     method: 'POST',
     headers: {
@@ -501,15 +537,6 @@ export function hakuHarri() {
   search(genre, yearFrom, yearTo, minPopularity, minDanceability, minEnergyLevel, limit);
 }
 
-export function search(genre, yearFrom, yearTo, minPopularity, minDanceability, minEnergyLevel, limit) {
-  const params = {
-    'genre': genre,
-    'yearFrom': yearFrom,
-    'yearTo': yearTo,
-    'minPopularity': minPopularity,
-    'minDanceability': minDanceability,
-    'minEnergyLevel': minEnergyLevel,
-    'limit': limit,
-    };
+export function search(params) {
   return getTracksByCriteria(params);
 }

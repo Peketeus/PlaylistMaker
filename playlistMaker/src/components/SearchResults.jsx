@@ -44,10 +44,9 @@ function SearchResults({ searchResults }) {
     e.preventDefault();
     // An example of doing something when the playlist is being created and when it finishes
     setIsCreating(true);
-    //const playlist_url = 
     // Get the link and show it somewhere on the page?
     const url = await makePlaylist(searchResults);
-    console.log("URL: ", url);
+    console.log("%cURL: " + url, "color:green;");
     setIsCreating(false);
   }
 
