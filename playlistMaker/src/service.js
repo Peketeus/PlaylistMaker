@@ -358,29 +358,33 @@ async function getTracksByCriteria(params) {
   }
 
   return filteredTracks;
+}
 
-  // ***************************************************************
-  // SOITTOLISTAN TEKO TEHTÄVÄ ERILLISEEN FUNKTIOON!!!
-  // ***************************************************************
-  if (!params.createPlaylist) {
-    console.log("NO PLAYLIST CREATION --- RETURNING");
-    return;
-  }
-
+/**
+ * Creates a playlist for the user with the selected tracks
+ * @param {Array} filteredTracks 
+ * @param {Object} sanitized 
+ * @returns url to the playlist
+ */
+export async function makePlaylist(filteredTracks/*, sanitized*/) {
   // Step 6: Creating a playlist if the user checked the box and more than 0 tracks
   const userData = await getUserData();
   // Constructing a date identifier for now
   const formattedDate = constructDateNow();
   const name = ("PLAYLIST", formattedDate);
   // Other 2 parameters
-  let description = '';
-  for (let filter in sanitized.filters) {
-    description += (filter + ': ' + sanitized.filters[filter] + ' ');
-  }
+  // Do we even want to let the user specify the description?
+  // For now outputs the current filters in a pretty format
+  let description = formattedDate;
+  //for (let filter in sanitized.filters) {
+    //description += (filter + ': ' + sanitized.filters[filter] + ' ');
+  //}
+  // The user being able to set this will probably be handy
   const _public = true;
-  const playlist = await createPlaylist(userData.id, name, description, _public);
+  const playlist = await createPlaylistSpotify(userData.id, name, description, _public);
   console.log("CREATED PLAYLIST:", playlist);
-  console.log("LINK:", playlist.external_urls.spotify);
+  const url = playlist.external_urls.spotify;
+  //console.log("LINK:", url);
 
   // Step 7: Add filtered tracks to the new playlist
   const playlist_snapshot = await addTracksToPlaylist(playlist, filteredTracks);
@@ -389,6 +393,10 @@ async function getTracksByCriteria(params) {
   // Useful when modifying playlists as it works as a guarantee
   // you are working with the latest version.
   console.log("SNAPSHOT:", playlist_snapshot);
+
+  // TODO: return something to tell the user the playlist was created
+  // Maybe the link to it?
+  return url;
 }
 
 /**
@@ -421,14 +429,15 @@ function constructDateNow() {
 }
 
 /**
- * Creates a playlist for the user
+ * Creates a playlist for the user on Spotify
  * @param {String} user_id 
  * @param {String} name 
  * @param {String} description 
  * @param {Boolean} _public 
  * @returns data
  */
-async function createPlaylist(user_id, name, description, _public) {
+async function createPlaylistSpotify(user_id, name, description, _public) {
+  const description_maxLength = 100;
   const url = `https://api.spotify.com/v1/users/${user_id}/playlists`;
   const response = await fetch(url, {
     method: 'POST',
@@ -438,7 +447,7 @@ async function createPlaylist(user_id, name, description, _public) {
     },
       body: JSON.stringify({
         name: name,
-        description: description.substring(0, 100),
+        description: description.substring(0, description_maxLength),
         public: _public,
       })
     });
@@ -485,14 +494,14 @@ const minPopularity = '0'; // Minimum popularity threshold
 const minDanceability = '0.5'; // Minimum danceability
 const minEnergyLevel = '0.3'; // Minimum energy
 const limit = 50; // Number of tracks to fetch
-const _createPlaylist = false; // If a playlist is created
+//const _createPlaylist = false; // If a playlist is created
 const random = true; // otetaanko random biisit vai samat
 
-export function hakuHarri(){
-  search(genre, yearFrom, yearTo, minPopularity, minDanceability, minEnergyLevel, limit, _createPlaylist);
+export function hakuHarri() {
+  search(genre, yearFrom, yearTo, minPopularity, minDanceability, minEnergyLevel, limit);
 }
 
-export function search(genre, yearFrom, yearTo, minPopularity, minDanceability, minEnergyLevel, limit, createPlaylist) {
+export function search(genre, yearFrom, yearTo, minPopularity, minDanceability, minEnergyLevel, limit) {
   const params = {
     'genre': genre,
     'yearFrom': yearFrom,
@@ -501,7 +510,6 @@ export function search(genre, yearFrom, yearTo, minPopularity, minDanceability, 
     'minDanceability': minDanceability,
     'minEnergyLevel': minEnergyLevel,
     'limit': limit,
-    'createPlaylist': createPlaylist,
     };
   return getTracksByCriteria(params);
 }

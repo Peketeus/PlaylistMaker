@@ -1,12 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { apiCall } from '../service';
 import { search } from '../service';
 import InputField from './InputField';
 import Genres from '../resources/genres.json'
 
 function SearchForm({ setSearchResults }) {
     const [type, setType] = useState('track')
-    const [query, setQuery] = useState('') // Tämän voi poistaa?
+    //const [query, setQuery] = useState('') // Tämän voi poistaa?
     const [genre, setGenre] = useState('')
     const [filteredGenres, setFilteredGenres] = useState([]) // Suodatetut genret
     const [limit, setLimit] = useState('')
@@ -15,14 +14,14 @@ function SearchForm({ setSearchResults }) {
     const [minPopularity, setMinPopularity] = useState('')
     const [minDanceability, setMinDanceability] = useState('')
     const [minEnergyLevel, setMinEnergyLevel] = useState('')
-    const [createPlaylist, setCreatePlaylist] = useState(false)
+    //const [createPlaylist, setCreatePlaylist] = useState(false)
 
     // Tämä on tässä genresuodatusta varten
     useEffect(() => {
       if (genre) {
         const results = Genres.filter(g =>
           g.name.toLowerCase().includes(genre.toLowerCase())
-        ).slice(0, 10) // Tätä säätämällä voi muokata max osumien näytön määrää
+        ).slice(0, 1500) // Tätä säätämällä voi muokata max osumien näytön määrää
         setFilteredGenres(results);
       } else {
           setFilteredGenres([]); // Tyhjentää listan, jos genrekenttä on tyhjä
@@ -32,7 +31,7 @@ function SearchForm({ setSearchResults }) {
     const handleSubmit = async (e) => {
         e.preventDefault() // Estää sivun uudelleenlataamisen
         // Vie kenttien arvot funktioon
-        const tracks = await search(genre, yearFrom, yearTo, minPopularity, minDanceability, minEnergyLevel, limit, createPlaylist);
+        const tracks = await search(genre, yearFrom, yearTo, minPopularity, minDanceability, minEnergyLevel, limit);
         setSearchResults(tracks);
     }
 
@@ -60,7 +59,7 @@ function SearchForm({ setSearchResults }) {
                 value={genre}
                 onChange={(e) => setGenre(e.target.value)}
                 placeholder="Hae genreä..."
-                className='w-full'
+                className='w-1/2 min-w-[10em]'
               />
               <datalist id="genre-options">
                 {filteredGenres.map((g) => (
@@ -97,16 +96,6 @@ function SearchForm({ setSearchResults }) {
                 }}
                 className='w-1/2'
               />
-
-              <label htmlFor="createPlaylist"className='text-right'>Create playlist? ***TÄMÄ PITÄÄ POISTAA*** </label>
-                <input
-                  className='justify-self-start'
-                  type="checkbox"
-                  checked={createPlaylist}
-                  onChange={(e) => {
-                    setCreatePlaylist(e.target.checked);
-                  }}
-                />
             </fieldset>
 
             <br />
@@ -120,6 +109,5 @@ function SearchForm({ setSearchResults }) {
         </form>
     )
 }
-
 
 export default SearchForm
