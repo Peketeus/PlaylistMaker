@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { search } from '../service';
 import InputField from './InputField';
+import Slider from './Slider';
 import Genres from '../resources/genres.json'
 
 function SearchForm({ setSearchResults }) {
@@ -11,8 +12,8 @@ function SearchForm({ setSearchResults }) {
     const [yearFrom, setYearFrom] = useState('')
     const [yearTo, setYearTo] = useState('')
     const [minPopularity, setMinPopularity] = useState('')
-    const [minDanceability, setMinDanceability] = useState('')
-    const [minEnergyLevel, setMinEnergyLevel] = useState('')
+    const [minDanceability, setMinDanceability] = useState(0.0)
+    const [minEnergyLevel, setMinEnergyLevel] = useState(0.0)
     const [minAcousticness, setMinAcousticness] = useState('')
     const [minInstrumentalness, setMinInstrumentalness] = useState('')
     const [minLiveness, setmMinLiveness] = useState('')
@@ -62,17 +63,20 @@ function SearchForm({ setSearchResults }) {
 
     return (
         <form onSubmit={handleSubmit}>
-            <div className='pt-8 pb-4'>
-                <label htmlFor='type'>Type: </label>
-                <select
-                  id='type'
-                  value={type}
-                  onChange={(e) => setType(e.target.value)}
-                >
-                  <option value="track">Track</option>
-                </select>
-              </div>
+
+            {/* Contains fields */}
             <fieldset className=' w-[50%] m-[0_auto] grid grid-cols-[0.75fr_1fr] gap-3'>
+
+              {/* Type chooser */}
+              <label htmlFor='type' className='text-right'>Type: </label>
+              <select
+                id='type'
+                value={type}
+                onChange={(e) => setType(e.target.value)}
+                className='w-1/2 min-w-[10em]'
+              >
+                <option value="track">Track</option>
+              </select>
 
               {/* Search field for genre */}
               <label htmlFor='genre' className='text-right'>Genre: </label>
@@ -91,18 +95,30 @@ function SearchForm({ setSearchResults }) {
               </datalist>
 
               {/* Other input fields */}
+              {/* SLIDER RANGE: 0 to 1.0 */}
+              {/* EXCEPT: minPopularity (0 to 100) minLoudness(~-60 to 0) minTempo(~50 to 250) */}
               <label htmlFor='yearFrom' className='text-right'>From (year): </label><InputField name="yearFrom" inputValue={yearFrom} setInputValue={setYearFrom} />
               <label htmlFor='yearTo' className='text-right'>To (year): </label><InputField name="yearTo" inputValue={yearTo} setInputValue={setYearTo} />
-              <label htmlFor='minPopularity' className='text-right'>minPopularity: </label><InputField name="minPopularity" inputValue={minPopularity} setInputValue={setMinPopularity} />
-              <label htmlFor='minDanceability' className='text-right'>minDanceability: </label><InputField name="minDanceability" inputValue={minDanceability} setInputValue={setMinDanceability} />
-              <label htmlFor='minEnergyLevel' className='text-right'>minEnergyLevel: </label><InputField name="minEnergyLevel" inputValue={minEnergyLevel} setInputValue={setMinEnergyLevel} />
-              <label htmlFor='minAcousticness' className='text-right'>minAcousticness: </label><InputField name="minAcousticness" inputValue={minAcousticness} setInputValue={setMinAcousticness} />
-              <label htmlFor='minInstrumentalness' className='text-right'>minInstrumentalness: </label><InputField name="minInstrumentalness" inputValue={minInstrumentalness} setInputValue={setMinInstrumentalness} />
-              <label htmlFor='minLiveness' className='text-right'>minLiveness: </label><InputField name="minLiveness" inputValue={minLiveness} setInputValue={setmMinLiveness} />
-              <label htmlFor='minLoudness' className='text-right'>minLoudness: </label><InputField name="minLoudness" inputValue={minLoudness} setInputValue={setMinLoudness} />
-              <label htmlFor='minSpeechiness' className='text-right'>minSpeechiness: </label><InputField name="minSpeechiness" inputValue={minSpeechiness} setInputValue={setMinSpeechiness} />
-              <label htmlFor='minTempo' className='text-right'>minTempo: </label><InputField name="minTempo" inputValue={minTempo} setInputValue={setMinTempo} />
-              <label htmlFor='minValence' className='text-right'>minValence: </label><InputField name="minValence" inputValue={minValence} setInputValue={setMinValence} />
+              <label htmlFor='minPopularity' className='text-right'>minPopularity: </label>
+                <Slider name="minPopularity" inputValue={minPopularity} setInputValue={setMinPopularity} min="0" max="100" step="1"/>
+              <label htmlFor='minDanceability' className='text-right'>minDanceability: </label>
+                <Slider name="minDanceability" inputValue={minDanceability} setInputValue={setMinDanceability} min="0" max="1" step="0.001"/>
+              <label htmlFor='minEnergyLevel' className='text-right'>minEnergyLevel: </label>
+                <Slider name="minEnergyLevel" inputValue={minEnergyLevel} setInputValue={setMinEnergyLevel} min="0" max="1" step="0.001"/>
+              <label htmlFor='minAcousticness' className='text-right'>minAcousticness: </label>
+                <Slider name="minAcousticness" inputValue={minAcousticness} setInputValue={setMinAcousticness} min="0" max="1" step="0.001"/>
+              <label htmlFor='minInstrumentalness' className='text-right'>minInstrumentalness: </label>
+                <Slider name="minInstrumentalness" inputValue={minInstrumentalness} setInputValue={setMinInstrumentalness} min="0" max="1" step="0.001"/>
+              <label htmlFor='minLiveness' className='text-right'>minLiveness: </label>
+                <Slider name="minLiveness" inputValue={minLiveness} setInputValue={setmMinLiveness} min="0" max="1" step="0.001"/>
+              <label htmlFor='minLoudness' className='text-right'>minLoudness: </label>
+                <Slider name="minLoudness" inputValue={minLoudness} setInputValue={setMinLoudness} min="-60" max="0" step="0.5"/>
+              <label htmlFor='minSpeechiness' className='text-right'>minSpeechiness: </label>
+                <Slider name="minSpeechiness" inputValue={minSpeechiness} setInputValue={setMinSpeechiness} min="0" max="1" step="0.001"/>
+              <label htmlFor='minTempo' className='text-right'>minTempo: </label>
+                <Slider name="minTempo" inputValue={minTempo} setInputValue={setMinTempo} min="50" max="250" step="1"/>
+              <label htmlFor='minValence' className='text-right'>minValence: </label>
+                <Slider name="minValence" inputValue={minValence} setInputValue={setMinValence} min="0" max="1" step="0.001"/>
 
               {/* Limit */}
               <label htmlFor="limit" className='text-right'>Limit: </label>
@@ -130,15 +146,6 @@ function SearchForm({ setSearchResults }) {
               />
             </fieldset>
 
-            <br />
-            <br />
-            <p>FILTERS:</p>
-            <p>minPopularity - minValence</p>
-            <p>RANGE: 0 to 1.0</p>
-            <p>EXCEPT: minPopularity (0 to 100) minLoudness(~-60 to 0) minTempo(~50 to 250)</p>
-            <p>minPopularity: 0-100 (This is a very harsh criterion, consider leaving at 0 or low)</p>
-            <p>limit: number of tracks at most</p>
-            {/*TODO: poistetaan tämä<----*/}
             <br />
             <button type="submit">Search</button>
         </form>

@@ -59,7 +59,7 @@ function App() {
         <div>
 
           <h2>Welcome, {userData?.display_name}</h2>
-          <img className='m-[0_auto] max-w-[6%] max-h-[auto]' src={userData?.images?.[0]?.url} />
+          <img className='m-[0_auto] max-w-[6%] max-h-[auto] mb-4' src={userData?.images?.[0]?.url} />
 
           <SearchForm setSearchResults={setSearchResults} />
 
