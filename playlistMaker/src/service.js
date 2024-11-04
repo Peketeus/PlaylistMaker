@@ -263,7 +263,7 @@ async function fetchAudioFeatures(trackIds, accessToken) {
  * @returns object containing the url and filters
  */
 function constructURL(params, offset) {
-  // Defaults
+  // Defaults TODO: delete? params will always contain default values see SearchForm.jsx states
   //const defaultGenre = '';
   const defaultYearFrom = 1900; // ?
   const defaultYearTo = new Date().getFullYear();
