@@ -10,7 +10,6 @@ function SearchForm({ setSearchResults }) {
     const [filteredGenres, setFilteredGenres] = useState([])
     const [yearFrom, setYearFrom] = useState('')
     const [yearTo, setYearTo] = useState('')
-    const [minPopularity, setMinPopularity] = useState("0")
     const [minDanceability, setMinDanceability] = useState("0")
     const [minEnergyLevel, setMinEnergyLevel] = useState("0")
     const [minAcousticness, setMinAcousticness] = useState("0")
@@ -45,7 +44,6 @@ function SearchForm({ setSearchResults }) {
             'yearFrom': yearFrom,
             'yearTo': yearTo,
             'filters': {
-              'minPopularity': minPopularity,
               'minDanceability': minDanceability,
               'minEnergyLevel': minEnergyLevel,
               'minAcousticness': minAcousticness,
@@ -98,11 +96,9 @@ function SearchForm({ setSearchResults }) {
 
               {/* Other input fields */}
               {/* SLIDER RANGE: 0 to 1.0 */}
-              {/* EXCEPT: minPopularity (0 to 100) minLoudness(~-60 to 0) minTempo(~50 to 250) */}
+              {/* EXCEPT: minLoudness(~-60 to 0) minTempo(~50 to 250) */}
               <label htmlFor='yearFrom' className='text-right'>From (year): </label><InputField name="yearFrom" inputValue={yearFrom} setInputValue={setYearFrom} />
               <label htmlFor='yearTo' className='text-right'>To (year): </label><InputField name="yearTo" inputValue={yearTo} setInputValue={setYearTo} />
-              <label htmlFor='minPopularity' className='text-right'>minPopularity: </label>
-                <Slider name="minPopularity" inputValue={minPopularity} setInputValue={setMinPopularity} min="0" max="100" step="1"/>
               <label htmlFor='minDanceability' className='text-right'>minDanceability: </label>
                 <Slider name="minDanceability" inputValue={minDanceability} setInputValue={setMinDanceability} min="0" max="1" step="0.001"/>
               <label htmlFor='minEnergyLevel' className='text-right'>minEnergyLevel: </label>

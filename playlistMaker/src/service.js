@@ -177,12 +177,7 @@ export async function apiCall(params) {
 
 // Function to search for tracks based on genre and year range
 async function searchTracksByCriteria(url, accessToken) {
-  // Fixed URL without popularity (Spotify API doesn't support direct popularity filtering in search)
-  //const url = `https://api.spotify.com/v1/search?q=genre:${genre}%20year:${yearFrom}-${yearTo}&type=track&limit=${limit}&offset=${offset}`;
-
-  // Log the URL for debugging
   console.log('FETCHING URL:', url);
-
   const response = await fetch(url, {
       method: 'GET',
       headers: {
@@ -193,7 +188,7 @@ async function searchTracksByCriteria(url, accessToken) {
 
   if (response.ok) {
       const data = await response.json();
-      // Extract track items with popularity metadata
+      // Extract tracks
       const tracks = data.tracks.items;
       return tracks;
   } else {
@@ -215,7 +210,6 @@ function filterTracksByFilters(tracks, audio_features, filters) {
     const feature = audio_features[track.id];
     if (feature) {
       return (
-      track.popularity >= filters.minPopularity &&
       audio_features[track.id].danceability >= filters.minDanceability &&
       audio_features[track.id].energy >= filters.minEnergyLevel &&
       audio_features[track.id].acousticness >= filters.minAcousticness &&
@@ -267,7 +261,6 @@ function constructURL(params, offset) {
   //const defaultGenre = '';
   const defaultYearFrom = 1900; // ?
   const defaultYearTo = new Date().getFullYear();
-  const defaultMinPopularity = 0;
   const defaultMinDanceability = 0;
   const defaultMinEnergyLevel = 0;
   const defaultMinAcousticness = 0;
@@ -285,7 +278,6 @@ function constructURL(params, offset) {
   const sanitizedYearTo = params.yearTo ? parseInt(params.yearTo.trim()) : defaultYearTo;
 
   // Filters
-  const sanitizedMinPopularity = params.filters.minPopularity ? parseInt(params.filters.minPopularity.trim()) : defaultMinPopularity;
   const sanitizedMinDanceability = params.filters.minDanceability ? parseFloat(params.filters.minDanceability.trim()) : defaultMinDanceability;
   const sanitizedMinEnergyLevel = params.filters.minEnergyLevel ? parseFloat(params.filters.minEnergyLevel.trim()) : defaultMinEnergyLevel;
   const sanitizedMinAcousticness = params.filters.minAcousticness ? parseFloat(params.filters.minAcousticness.trim()) : defaultMinAcousticness;
@@ -299,7 +291,6 @@ function constructURL(params, offset) {
   // Filters, same as when constructing them in SearchForm
   // TODO: consider just changing the params and not create a new one
   const filters = {
-    'minPopularity': sanitizedMinPopularity,
     'minDanceability': sanitizedMinDanceability,
     'minEnergyLevel': sanitizedMinEnergyLevel,
     'minAcousticness': sanitizedMinAcousticness,
@@ -356,7 +347,7 @@ async function getTracksByCriteria(params) {
   let randomOffset = 0;
   // Sometimes offset + limit > 1000 so throws error???
   if (random) {
-    const min = 500;
+    const min = 550;
     const max = 950;
     // Limits to [min, max]
     randomOffset = Math.floor(Math.random() * (max - min) + min)
@@ -364,7 +355,6 @@ async function getTracksByCriteria(params) {
   }
   
   // Searching tracks in a loop and lowering randomOffset on each search
-  // until 5 searches are performed OR enough tracks (=limit) are found
   // Max number of searches at total
   const maxSearches = 10;
   let currentSearches = 0;
@@ -385,11 +375,11 @@ async function getTracksByCriteria(params) {
     // TODO: refactoring so that sanitizing only happens once
     // works fine as of now
     const sanitized = constructURL(params, randomOffset);
-    // Has warning on await for some reason but works correctly
+    // Has a warning on await for some reason but works correctly
     const tracks = await searchAndFilter(sanitized, accessToken);
     console.log("SEARCHES:", currentSearches, "TRACKS:", found_tracks.length);
     
-    // Add tracks to found_tracks
+    // Add the tracks
     for (const track of tracks) {
       if (found_tracks.length < limit) {
         found_tracks.push(track);
@@ -398,7 +388,9 @@ async function getTracksByCriteria(params) {
         // Limit is achieved
         console.log("LIMIT REACHED");
         console.log("FINAL: ", found_tracks);
-        return found_tracks;
+        //return found_tracks;
+        // Removing duplicates just in case
+        return [...new Set(found_tracks)];
       }
     }
 
@@ -408,28 +400,32 @@ async function getTracksByCriteria(params) {
       searchesNoTracks++;
       // if (randomOffset > limit + 30)
       // This will be modified most likely
-      if (randomOffset > limit) {
+      //if (randomOffset > limit) {
+      if (randomOffset > limit + 5) {
         //randomOffset = Math.round(randomOffset / 2);
-        randomOffset -= limit;
+        //randomOffset -= limit;
         // TODO: VERY RARE ERROR WHERE A SONG CAN BE FOUND TWICE
         // PROBABLY DUE TO CHANGES IN THE SPOTIFY DATABASE DURING THE SEARCH?
         // SOLUTION? -> SUBTRACT SLIGTHLY MORE THAN LIMIT TO ACCOUNT FOR MINOR CHANGES
         // OR CHECKING FOR DUPLICATES AT THE END?
-        //randomOffset -= (limit + 5);
+        randomOffset -= (limit + 5);
       }
     }
     else {
       searchesNoTracks = 0;
       // This will stay like this
-      if (randomOffset > limit) {
-        randomOffset -= limit;
+      if (randomOffset > limit + 5) {
+        //randomOffset -= limit;
+        randomOffset -= (limit + 5);
       }
     }
     currentSearches++;
   }
 
   console.log("FINAL: ", found_tracks);
-  return found_tracks;
+  //return found_tracks;
+  // Removing duplicates just in case
+  return [...new Set(found_tracks)];
 }
 
 /**
@@ -597,7 +593,6 @@ if (!response.ok){
 //const genre = 'pop'; // The genre you want to search
 //const yearFrom = '2000'; // Starting year of range
 //const yearTo = '2010'; // Ending year of range
-//const minPopularity = '0'; // Minimum popularity threshold
 //const minDanceability = '0.5'; // Minimum danceability
 //const minEnergyLevel = '0.3'; // Minimum energy
 //const limit = 50; // Number of tracks to fetch
