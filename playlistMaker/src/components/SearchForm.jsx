@@ -8,7 +8,6 @@ function SearchForm({ setSearchResults }) {
     const [type, setType] = useState('track')
     const [genre, setGenre] = useState('')
     const [filteredGenres, setFilteredGenres] = useState([])
-    const [limit, setLimit] = useState('')
     const [yearFrom, setYearFrom] = useState('')
     const [yearTo, setYearTo] = useState('')
     const [minPopularity, setMinPopularity] = useState("0")
@@ -21,7 +20,8 @@ function SearchForm({ setSearchResults }) {
     const [minSpeechiness, setMinSpeechiness] = useState("0")
     const [minTempo, setMinTempo] = useState("0")
     const [minValence, setMinValence] = useState("0")
-
+    const [limit, setLimit] = useState('')
+    const [isSearching, setIsSearching] = useState(false)
     //const [createPlaylist, setCreatePlaylist] = useState(false)
 
     // Filter what genres the search box offers upon user input
@@ -38,6 +38,7 @@ function SearchForm({ setSearchResults }) {
 
     const handleSubmit = async (e) => {
         e.preventDefault()
+        setIsSearching(true);
         const tracks = await search(
           {
             'genre': genre,
@@ -59,6 +60,7 @@ function SearchForm({ setSearchResults }) {
             }
           );
         setSearchResults(tracks);
+        setIsSearching(false);
     }
 
     return (
@@ -128,7 +130,6 @@ function SearchForm({ setSearchResults }) {
                 value={limit}
                 onChange={(e) => {
                   const value = e.target.value;
-
                   // If field is empty, allow null-value
                   if (value === "" || (value >= 1 && value <= 50)) {
                     setLimit(value);
@@ -147,7 +148,14 @@ function SearchForm({ setSearchResults }) {
             </fieldset>
 
             <br />
-            <button type="submit">Search</button>
+            <button 
+              className= {`font-semibold rounded transition duration-300
+                ${isSearching ? 'bg-gray-400 text-gray-200 cursor-not-allowed' : 'bg-blue-500 text-white hover:bg-blue-600'}`}
+              disabled={isSearching}
+              type="submit"
+              >
+              {isSearching ? 'Searching...' : 'Search'}
+            </button>
         </form>
     )
 }

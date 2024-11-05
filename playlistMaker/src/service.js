@@ -210,7 +210,7 @@ async function searchTracksByCriteria(url, accessToken) {
  * @returns 
  */
 function filterTracksByFilters(tracks, audio_features, filters) {
-  console.log("FILTERS:", filters);
+  //console.log("FILTERS:", filters);
   return tracks.filter(track => {
     const feature = audio_features[track.id];
     if (feature) {
@@ -338,11 +338,15 @@ function constructURL(params, offset) {
 }
 
 /**
- * Gets tracks and filters through them with given parameters
- * @param {Object} params 
- * @returns {Array} filtered tracks
+ * Performs searches in a loop to find tracks that match the given parameters
+ * Vähän JSDoc tyyliä, jos halutaan
+ * @async
+ * @function getTracksByCriteria
+ * @param {Object} params Object containg all search criteria
+ * @returns {Promise<Array>} filtered tracks
  */
 async function getTracksByCriteria(params) {
+  console.log(params);
   // Refresh token if needed
   if (isTokenExpired()) await refreshTokenClick();
   const accessToken = currentToken.access_token;
@@ -352,14 +356,90 @@ async function getTracksByCriteria(params) {
   let randomOffset = 0;
   // Sometimes offset + limit > 1000 so throws error???
   if (random) {
-    // Limited to 0-950 now
-    randomOffset = Math.floor(Math.random() * 950) // 949 for good measure?
+    const min = 500;
+    const max = 950;
+    // Limits to [min, max]
+    randomOffset = Math.floor(Math.random() * (max - min) + min)
     //console.log(randomOffset);
   }
+  
+  // Searching tracks in a loop and lowering randomOffset on each search
+  // until 5 searches are performed OR enough tracks (=limit) are found
+  // Max number of searches at total
+  const maxSearches = 10;
+  let currentSearches = 0;
 
-  // Step 2: Sanitize inputs and construct url as well as filters
-  const sanitized = constructURL(params, randomOffset);
+  // If no tracks are found for 4 CONSECUTIVE searches -> break
+  const maxSearchesNoTracks = 4;
+  let searchesNoTracks = 0;
 
+  // Found tracks and the limit
+  const found_tracks = [];
+  const limit = params.limit ? parseInt(params.limit) : 50;
+  while (
+    currentSearches < maxSearches && 
+    searchesNoTracks < maxSearchesNoTracks && 
+    found_tracks.length < limit
+  ) {
+    // Step 2: Sanitize inputs and construct url as well as filters
+    // TODO: refactoring so that sanitizing only happens once
+    // works fine as of now
+    const sanitized = constructURL(params, randomOffset);
+    // Has warning on await for some reason but works correctly
+    const tracks = await searchAndFilter(sanitized, accessToken);
+    console.log("SEARCHES:", currentSearches, "TRACKS:", found_tracks.length);
+    
+    // Add tracks to found_tracks
+    for (const track of tracks) {
+      if (found_tracks.length < limit) {
+        found_tracks.push(track);
+      }
+      else {
+        // Limit is achieved
+        console.log("LIMIT REACHED");
+        console.log("FINAL: ", found_tracks);
+        return found_tracks;
+      }
+    }
+
+    // Adjust offset
+    // This needs optimizing! probably based on randomOffset min and max
+    if (tracks.length === 0) {
+      searchesNoTracks++;
+      // if (randomOffset > limit + 30)
+      // This will be modified most likely
+      if (randomOffset > limit) {
+        //randomOffset = Math.round(randomOffset / 2);
+        randomOffset -= limit;
+        // TODO: VERY RARE ERROR WHERE A SONG CAN BE FOUND TWICE
+        // PROBABLY DUE TO CHANGES IN THE SPOTIFY DATABASE DURING THE SEARCH?
+        // SOLUTION? -> SUBTRACT SLIGTHLY MORE THAN LIMIT TO ACCOUNT FOR MINOR CHANGES
+        // OR CHECKING FOR DUPLICATES AT THE END?
+        //randomOffset -= (limit + 5);
+      }
+    }
+    else {
+      searchesNoTracks = 0;
+      // This will stay like this
+      if (randomOffset > limit) {
+        randomOffset -= limit;
+      }
+    }
+    currentSearches++;
+  }
+
+  console.log("FINAL: ", found_tracks);
+  return found_tracks;
+}
+
+/**
+ * Searches for tracks and filters through them
+ * @param {Object} sanitized Object holding the sanitized url and filters
+ * @param {string} accessToken The users's access token
+ * @returns filtered tracks
+ */
+async function searchAndFilter(sanitized, accessToken) {
+  //console.log(sanitized, accessToken);
   // Step 3: Search for tracks by genre and year range, filtering later
   const tracks = await searchTracksByCriteria(sanitized.url, accessToken);
   console.log("TRACKS: ", tracks);
@@ -371,9 +451,7 @@ async function getTracksByCriteria(params) {
   // Step 4: Fetch audio features and convert them to a more appropriate format
   const trackIds = tracks.map(track => track.id);
   const audioFeatures = await fetchAudioFeatures(trackIds, accessToken);
-  console.log("AUDIO FEATURES:", audioFeatures);
-
-  // Convert audio features to a better format
+  //console.log("AUDIO FEATURES:", audioFeatures);
   const featuresObj = featuresAsObj(audioFeatures);
   //console.log("FEATURES AS OBJ:", featuresObj);
 
