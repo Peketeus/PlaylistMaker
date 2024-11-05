@@ -1,9 +1,12 @@
-function InputField({ name, inputValue, setInputValue }) {
+function Slider({ name, min, max, step, inputValue, setInputValue }) {
     return (
       <div className='flex justify-start content-center'>
         <input
           id={name}
-          type="text"
+          type="range"
+          min={min}
+          max={max}
+          step={step}
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
           className="w-1/2 min-w-[10em]"
@@ -12,4 +15,4 @@ function InputField({ name, inputValue, setInputValue }) {
     );
   }
   
-  export default InputField;
+  export default Slider;
