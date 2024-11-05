@@ -1,6 +1,6 @@
 # PlaylistMaker
 
-**PlaylistMaker** is web application built with React that utilizes the Spotify API to allow users to create randomly generated playlists based on the search parameters. The application then creates a link to your spotify account with the generated playlist added to it.
+**PlaylistMaker** is a web application built with React that utilizes the Spotify API to allow users to create randomly generated playlists based on the search parameters. The application then creates a link to your spotify account with the generated playlist added to it.
 
 ## Table of Contents
 
@@ -45,7 +45,7 @@
 
 3. Create a `.env` file in the root directory and add the necessary [environment variables](#environment-variables).
 
-    You need your own API key to be able to use this application. You can obtain an API key from Spotify: [Spotify Developer Portal](https://developer.spotify.com/documentation/web-api)
+    You need your own clientID to be able to use this application. You can obtain the clientID from Spotify: [Spotify Developer Portal](https://developer.spotify.com/documentation/web-api)
 
 4. Start the development server:
 
@@ -63,8 +63,7 @@
 
 Create a `.env` file in the root directory and add the following variables:
 
-    - **VITE_API_CLIENT_ID=**: Your Spotify application's client ID
-    - **VITE_API_CLIENT_SECRET=**: Your Spotify application's Client Secret
+    - **VITE_API_CLIENT_ID=_yourClientID_**: Your Spotify application's client ID
 
     Replace these with your own Spotify application credentials, which you can obtain from the [Spotify Developer Portal](https://developer.spotify.com/dashboard/applications).
 
