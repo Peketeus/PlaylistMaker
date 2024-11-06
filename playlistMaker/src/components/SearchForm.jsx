@@ -142,7 +142,6 @@ function SearchForm({ setSearchResults }) {
                 className='w-1/2'
               />
             </fieldset>
-
             <br />
             <button 
               className= {`font-semibold rounded transition duration-300
