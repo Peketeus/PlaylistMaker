@@ -71,8 +71,8 @@ Create a `.env` file in the root directory and add the following variables:
 
 ## License
 
+This project uses a code base for Spotify authorization, implemented with the PKCE (Proof Key for Code Exchange) method. This authorization flow enables secure Spotify authentication within our application. The original authorization code is licensed under the Apache License 2.0, and we have made modifications to tailor it to our specific needs.
+
+The original code for the Spotify PKCE authorization can be found here: [repository](https://github.com/spotify/web-api-examples/blob/master/authorization/authorization_code_pkce/public/app.js).
+
 This project is licensed under the (TODO: Sovitaan lisenssistä!) License. See the [LICENSE](LICENSE) file for more details.
-
-
-Pohjana käytetty https://github.com/spotify/web-api-examples/blob/master/authorization/authorization_code_pkce/public/app.js
-joka löytyi sivulta https://developer.spotify.com/documentation/web-api/tutorials/code-flow
