@@ -1,4 +1,4 @@
-const clientId = import.meta.env.VITE_API_CLIENT_ID;  // Tulee .env tiedostosta, mikä pitää olla juuressa.
+const clientId = import.meta.env.VITE_API_CLIENT_ID;  // Comes from .env file that has to be in root folder
 const redirectUrl = 'http://localhost:5173/';  // Make sure this matches your Spotify redirect URL
 
 const authorizationEndpoint = "https://accounts.spotify.com/authorize";
@@ -97,27 +97,22 @@ export async function refreshToken() {
   return await response.json();
 }
 
-//  Functio tarkistaa onko tokeni vanhentunut ja jos on niin päivittää uuteen.Tuleeko toimimaan toisen päivityksen jälkeen? //TODO :Jätetään tähän vain tarkistus että tarviiko virkistää ja sitte palauttaa true tai false ja tämän jälkee siellä muualla voidaa kutsua refreshToken. Helpompilukusta syntaxia?
-export function isTokenExpired() { // TODO: exportin voi ottaa pois ku ei enää testaile nappulalla
+// Function checks if access token is expired
+function isTokenExpired() {
   const expiresAtString = currentToken.expires;
   if (!expiresAtString) {
     // const token = await refreshToken();
     // currentToken.save(token);
-    console.log("Tokeni pitää virkistää!<3"); //rmv
     return true;
   }
   const expiresAt = new Date(expiresAtString);
   const currentTime = new Date(); 
-
   if (currentTime > expiresAt){
     // const token = await refreshToken();
     // currentToken.save(token);
-    console.log("Tokeni pitää virkistää!"); //rmv
     return true;
-  } else {
-    console.log("Tokenia ei tarvitse virkistää. Virkistetään tämän kellonajan jälkeen: " + expiresAtString); //rmv
-    return false;
   }
+  return false;
 }
 
 // Function to get the current user's data
@@ -135,7 +130,7 @@ export async function loginWithSpotifyClick() {
   await redirectToSpotifyAuthorize();
 }
 
-// Kirjautuu ulos painiketta painamalla
+// Log out via button click
 export async function logoutClick() {
   localStorage.clear();
   window.location.href = redirectUrl;
@@ -151,13 +146,15 @@ export async function refreshTokenClick() {
 //-------------------------------------------------------------------------------------------
 // Laitetaan meidän omat funktiot tästä alas, niin ei mene tuohon authorization 
 // koodin sekaan meidän omaa turhan paljon.
+// ***POISTETAAN TÄMÄ KOMMENTTI LOPUSSA***
+//-------------------------------------------------------------------------------------------
 
-// tekee apikutsun nappia painamalla
+// TODO: delete?
 export async function apiCallClick(params) {
-  console.log("Api call parametrilla: ", params)
+  console.log("API call with parameters: ", params)
 
 
-  // yhdistää yksittäisen biisin hakuun id:n (params)
+  // Search for a single song with song ID (params)
   const endpoint = "https://api.spotify.com/v1/tracks/".concat(params)
 
   const track = await apiCall(endpoint)
@@ -167,9 +164,9 @@ export async function apiCallClick(params) {
   return track;
 }
 
-// apikutsu. Muut funktiot luovat osoitteen, jonka jälkeen tätä kutsutaan
+// API call with URL constructed by helper functions
 export async function apiCall(params) {
-  if (isTokenExpired()) refreshTokenClick(); // TODO: Tokenrefresher ei tainnu virkistää tokenia oikeassa järjestyksessä. Yritti hakea biisua ja sitte vasta virkisti tokenin? pitää kahtoa asiaa uudestaa.
+  if (isTokenExpired()) refreshTokenClick();
   const response = await fetch(params, {
     method: 'GET',
     headers: { 'Authorization': 'Bearer ' + currentToken.access_token },
@@ -178,18 +175,13 @@ export async function apiCall(params) {
   return await response.json();
 }
 
-export function testiTeppo(){
-  if(isTokenExpired()) refreshTokenClick();
-}
-
-
 // Function to search for tracks based on genre and year range
 async function searchTracksByCriteria(url, accessToken) {
   // Fixed URL without popularity (Spotify API doesn't support direct popularity filtering in search)
   //const url = `https://api.spotify.com/v1/search?q=genre:${genre}%20year:${yearFrom}-${yearTo}&type=track&limit=${limit}&offset=${offset}`;
 
   // Log the URL for debugging
-  console.log('Fetching URL:', url);
+  console.log('FETCHING URL:', url);
 
   const response = await fetch(url, {
       method: 'GET',
@@ -225,7 +217,14 @@ function filterTracksByFilters(tracks, audio_features, filters) {
       return (
       track.popularity >= filters.minPopularity &&
       audio_features[track.id].danceability >= filters.minDanceability &&
-      audio_features[track.id].energy >= filters.minEnergyLevel
+      audio_features[track.id].energy >= filters.minEnergyLevel &&
+      audio_features[track.id].acousticness >= filters.minAcousticness &&
+      audio_features[track.id].instrumentalness >= filters.minInstrumentalness &&
+      audio_features[track.id].liveness >= filters.minLiveness &&
+      audio_features[track.id].loudness >= filters.minLoudness &&
+      audio_features[track.id].speechiness >= filters.minSpeechiness &&
+      audio_features[track.id].tempo >= filters.minTempo &&
+      audio_features[track.id].valence >= filters.minValence
       );
     }
     // Here is whether to include a track that has no matching audio feature
@@ -264,13 +263,20 @@ async function fetchAudioFeatures(trackIds, accessToken) {
  * @returns object containing the url and filters
  */
 function constructURL(params, offset) {
-  // Defaults
+  // Defaults TODO: delete? params will always contain default values see SearchForm.jsx states
   //const defaultGenre = '';
   const defaultYearFrom = 1900; // ?
   const defaultYearTo = new Date().getFullYear();
   const defaultMinPopularity = 0;
   const defaultMinDanceability = 0;
   const defaultMinEnergyLevel = 0;
+  const defaultMinAcousticness = 0;
+  const defaultMinInstrumentalness = 0;
+  const defaultMinLiveness = 0;
+  const defaultMinLoudness = -60; // In decibels, maybe lower?
+  const defaultMinSpeechiness = 0;
+  const defaultMinTempo = 0; // 50 very slow, but keep at 0?
+  const defaultMinValence = 0;
   const defaultLimit = 50;
 
   // Sanitized inputs for the api call
@@ -278,15 +284,31 @@ function constructURL(params, offset) {
   const sanitizedYearFrom = params.yearFrom ? parseInt(params.yearFrom.trim()) : defaultYearFrom;
   const sanitizedYearTo = params.yearTo ? parseInt(params.yearTo.trim()) : defaultYearTo;
 
-  const sanitizedMinPopularity = params.minPopularity ? parseInt(params.minPopularity.trim()) : defaultMinPopularity;
-  const sanitizedMinDanceability = params.minDanceability ? parseFloat(params.minDanceability.trim()) : defaultMinDanceability;
-  const sanitizedMinEnergyLevel = params.minEnergyLevel ? parseFloat(params.minEnergyLevel.trim()) : defaultMinEnergyLevel;
-
   // Filters
+  const sanitizedMinPopularity = params.filters.minPopularity ? parseInt(params.filters.minPopularity.trim()) : defaultMinPopularity;
+  const sanitizedMinDanceability = params.filters.minDanceability ? parseFloat(params.filters.minDanceability.trim()) : defaultMinDanceability;
+  const sanitizedMinEnergyLevel = params.filters.minEnergyLevel ? parseFloat(params.filters.minEnergyLevel.trim()) : defaultMinEnergyLevel;
+  const sanitizedMinAcousticness = params.filters.minAcousticness ? parseFloat(params.filters.minAcousticness.trim()) : defaultMinAcousticness;
+  const sanitizedMinInstrumentalness = params.filters.minInstrumentalness ? parseFloat(params.filters.minInstrumentalness.trim()) : defaultMinInstrumentalness;
+  const sanitizedMinLiveness = params.filters.minLiveness ? parseFloat(params.filters.minLiveness.trim()) : defaultMinLiveness;
+  const sanitizedMinLoudness = params.filters.minLoudness ? parseFloat(params.filters.minLoudness.trim()) : defaultMinLoudness;
+  const sanitizedMinSpeechiness = params.filters.minSpeechiness ? parseFloat(params.filters.minSpeechiness.trim()) : defaultMinSpeechiness;
+  const sanitizedMinTempo = params.filters.minTempo ? parseFloat(params.filters.minTempo.trim()) : defaultMinTempo;
+  const sanitizedMinValence = params.filters.minValence ? parseFloat(params.filters.minValence.trim()) : defaultMinValence;
+
+  // Filters, same as when constructing them in SearchForm
+  // TODO: consider just changing the params and not create a new one
   const filters = {
     'minPopularity': sanitizedMinPopularity,
     'minDanceability': sanitizedMinDanceability,
     'minEnergyLevel': sanitizedMinEnergyLevel,
+    'minAcousticness': sanitizedMinAcousticness,
+    'minInstrumentalness': sanitizedMinInstrumentalness,
+    'minLiveness': sanitizedMinLiveness,
+    'minLoudness': sanitizedMinLoudness,
+    'minSpeechiness': sanitizedMinSpeechiness,
+    'minTempo': sanitizedMinTempo,
+    'minValence': sanitizedMinValence,
   }
 
   // Currently per api call
@@ -315,9 +337,11 @@ function constructURL(params, offset) {
   };;
 }
 
-// const minDanceability = 0.1; //between 0-1 the level is higher than the number
-// const minEnergyLevel = 0.1;
-// Combine everything together and filter by minPopularity, minDanceability and minEnergy
+/**
+ * Gets tracks and filters through them with given parameters
+ * @param {Object} params 
+ * @returns {Array} filtered tracks
+ */
 async function getTracksByCriteria(params) {
   // Refresh token if needed
   if (isTokenExpired()) await refreshTokenClick();
@@ -336,51 +360,60 @@ async function getTracksByCriteria(params) {
   // Step 2: Sanitize inputs and construct url as well as filters
   const sanitized = constructURL(params, randomOffset);
 
-  // Step 3: Search for tracks by genre and year range (popularity , minDanceability and minEnergy level will be filtered manually)
+  // Step 3: Search for tracks by genre and year range, filtering later
   const tracks = await searchTracksByCriteria(sanitized.url, accessToken);
   console.log("TRACKS: ", tracks);
+  if (tracks.length === 0) {
+    console.log("%cFOUND NO TRACKS --- RETURNING []", "color:red;");
+    return [];
+  }
 
   // Step 4: Fetch audio features and convert them to a more appropriate format
   const trackIds = tracks.map(track => track.id);
   const audioFeatures = await fetchAudioFeatures(trackIds, accessToken);
   console.log("AUDIO FEATURES:", audioFeatures);
 
+  // Convert audio features to a better format
   const featuresObj = featuresAsObj(audioFeatures);
-  console.log("FEATURES AS OBJ:", featuresObj);
+  //console.log("FEATURES AS OBJ:", featuresObj);
 
   // Step 5: Filter tracks by all filters
   const filteredTracks = filterTracksByFilters(tracks, featuresObj, sanitized.filters);
   console.log('FILTERED TRACKS', filteredTracks);
 
   if (filteredTracks.length === 0) {
-    console.log("FOUND NO TRACKS --- RETURNING");
-    return;
+    console.log("%cFILTERING PRODUCED 0 VALID TRACKS --- RETURNING []", "color:yellow;");
+    return [];
   }
 
   return filteredTracks;
+}
 
-  // ***************************************************************
-  // SOITTOLISTAN TEKO TEHTÄVÄ ERILLISEEN FUNKTIOON!!!
-  // ***************************************************************
-  if (!params.createPlaylist) {
-    console.log("NO PLAYLIST CREATION --- RETURNING");
-    return;
-  }
-
+/**
+ * Creates a playlist for the user with the selected tracks
+ * @param {Array} filteredTracks 
+ * @param {Object} sanitized 
+ * @returns url to the playlist
+ */
+export async function makePlaylist(filteredTracks/*, sanitized*/) {
   // Step 6: Creating a playlist if the user checked the box and more than 0 tracks
   const userData = await getUserData();
   // Constructing a date identifier for now
   const formattedDate = constructDateNow();
   const name = ("PLAYLIST", formattedDate);
   // Other 2 parameters
-  let description = '';
-  for (let filter in sanitized.filters) {
-    description += (filter + ': ' + sanitized.filters[filter] + ' ');
-  }
+  // Do we even want to let the user specify the description?
+  // For now outputs the current filters in a pretty format
+  let description = formattedDate;
+  //for (let filter in sanitized.filters) {
+    //description += (filter + ': ' + sanitized.filters[filter] + ' ');
+  //}
+  // The user being able to set this will probably be handy
   const _public = true;
-  const playlist = await createPlaylist(userData.id, name, description, _public);
+  const playlist = await createPlaylistSpotify(userData.id, name, description, _public);
   console.log("CREATED PLAYLIST:", playlist);
-  console.log("LINK:", playlist.external_urls.spotify);
+  const url = playlist.external_urls.spotify;
+  //console.log("LINK:", url);
 
   // Step 7: Add filtered tracks to the new playlist
   const playlist_snapshot = await addTracksToPlaylist(playlist, filteredTracks);
@@ -388,13 +421,17 @@ async function getTracksByCriteria(params) {
   // A new one is generated every time the playlist is modified.
   // Useful when modifying playlists as it works as a guarantee
   // you are working with the latest version.
-  console.log("SNAPSHOT:", playlist_snapshot);
+  //console.log("SNAPSHOT:", playlist_snapshot);
+
+  // TODO: return something to tell the user the playlist was created
+  // Maybe the link to it?
+  return url;
 }
 
 /**
  * Constructs audiofeatures in an object format
  * @param {Array} audioFeatures 
- * @returns object which has key as track id and value feature
+ * @returns object -> track_id: feature
  */
 function featuresAsObj(audioFeatures) {
   return audioFeatures.reduce((obj, feature) => {
@@ -406,7 +443,7 @@ function featuresAsObj(audioFeatures) {
 }
 
 /**
- * Constructs a formated date for current time
+ * Constructs a formatted date for current time
  * @returns formatted date
  */
 function constructDateNow() {
@@ -421,14 +458,15 @@ function constructDateNow() {
 }
 
 /**
- * Creates a playlist for the user
+ * Creates a playlist for the user on Spotify
  * @param {String} user_id 
  * @param {String} name 
  * @param {String} description 
  * @param {Boolean} _public 
  * @returns data
  */
-async function createPlaylist(user_id, name, description, _public) {
+async function createPlaylistSpotify(user_id, name, description, _public) {
+  const description_maxLength = 100;
   const url = `https://api.spotify.com/v1/users/${user_id}/playlists`;
   const response = await fetch(url, {
     method: 'POST',
@@ -438,7 +476,7 @@ async function createPlaylist(user_id, name, description, _public) {
     },
       body: JSON.stringify({
         name: name,
-        description: description.substring(0, 100),
+        description: description.substring(0, description_maxLength),
         public: _public,
       })
     });
@@ -458,7 +496,7 @@ async function createPlaylist(user_id, name, description, _public) {
 async function addTracksToPlaylist(playlist, tracks) {
   // Correct format
   const track_uris = tracks.map(track => `spotify:track:${track.id}`);
-  console.log("TRACK URIS:", track_uris);
+  //console.log("TRACK URIS:", track_uris);
   const response = await fetch(`https://api.spotify.com/v1/playlists/${playlist.id}/tracks`, {
     method: 'POST',
     headers: {
@@ -476,32 +514,18 @@ if (!response.ok){
   return data;
 }
 
-// Example usage:                                                                                   //???? JERJEJREJJREJRE
+// Example usage:
 //const accessToken = 'YOUR_SPOTIFY_ACCESS_TOKEN';  //? currentToken.access_token
-const genre = 'pop'; // The genre you want to search
-const yearFrom = '2000'; // Starting year of range
-const yearTo = '2010'; // Ending year of range
-const minPopularity = '0'; // Minimum popularity threshold
-const minDanceability = '0.5'; // Minimum danceability
-const minEnergyLevel = '0.3'; // Minimum energy
-const limit = 50; // Number of tracks to fetch
-const _createPlaylist = false; // If a playlist is created
-const random = true; // otetaanko random biisit vai samat
+//const genre = 'pop'; // The genre you want to search
+//const yearFrom = '2000'; // Starting year of range
+//const yearTo = '2010'; // Ending year of range
+//const minPopularity = '0'; // Minimum popularity threshold
+//const minDanceability = '0.5'; // Minimum danceability
+//const minEnergyLevel = '0.3'; // Minimum energy
+//const limit = 50; // Number of tracks to fetch
+//const _createPlaylist = false; // If a playlist is created
+const random = true; // Random songs or the same ones as before TODO: move to a more sensible place
 
-export function hakuHarri(){
-  search(genre, yearFrom, yearTo, minPopularity, minDanceability, minEnergyLevel, limit, _createPlaylist);
-}
-
-export function search(genre, yearFrom, yearTo, minPopularity, minDanceability, minEnergyLevel, limit, createPlaylist) {
-  const params = {
-    'genre': genre,
-    'yearFrom': yearFrom,
-    'yearTo': yearTo,
-    'minPopularity': minPopularity,
-    'minDanceability': minDanceability,
-    'minEnergyLevel': minEnergyLevel,
-    'limit': limit,
-    'createPlaylist': createPlaylist,
-    };
+export async function search(params) {
   return getTracksByCriteria(params);
 }

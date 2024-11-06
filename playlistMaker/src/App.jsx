@@ -23,7 +23,7 @@ function App() {
 
         console.log('Access token = ', currentToken.access_token)
 
-        // Poistetaan URL:sta code parametri
+        // Remove the code-parameter from the URL
         const url = new URL(window.location.href)
         url.searchParams.delete('code')
         const updatedUrl = url.search ? url.href : url.href.replace('?', '')
@@ -50,28 +50,29 @@ function App() {
       <h1>PlaylistMaker</h1>
 
       {!isLoggedIn ? (
-        <div className='absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 m-0 p-0'> {/* Laitetaan nappi näytön keskelle */}
-          <button onClick={loginWithSpotifyClick}>Kirjaudu Spotifyyn</button>
+        <div className='absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 m-0 p-0'>
+          <button onClick={loginWithSpotifyClick}>Log in with Spotify</button>
         </div>
       ) : (
-        // Tämä näytetään, jos on kirjauduttu sisään
+
+        // Display if the user is logged in
         <div>
 
           <h2>Welcome, {userData?.display_name}</h2>
-          <img className='m-[0_auto] max-w-[6%] max-h-[auto]' src={userData?.images?.[0]?.url} />
+          <img className='m-[0_auto] max-w-[6%] max-h-[auto] mb-4' src={userData?.images?.[0]?.url} />
 
           <SearchForm setSearchResults={setSearchResults} />
 
           <div>
             <SearchResults searchResults={searchResults} />
             <div className='mt-8'>
-              <button onClick={logoutClick}>LOG OUT</button>
+              <button onClick={logoutClick}>Log Out</button>
             </div>
           </div>
         </div>
       )}
       <div className='spotify-watermark'>
-        <p>Powered by</p><img src={SpotifyLogo} alt='Spotify' /> {/* TODO: mobiiliystävälliseksi */}
+        <p>Powered by</p><img src={SpotifyLogo} alt='Spotify' /> {/* TODO: make mobile/small screen friendly */}
       </div>
     </div>
   );
