@@ -40,6 +40,7 @@ function SearchResults({ searchResults }) {
     setCurrentlyPlaying(audioElement);
   }
 
+  // Creating a playlist with the tracks
   const handleCreatePlaylist = async (e) => {
     e.preventDefault();
     // An example of doing something when the playlist is being created and when it finishes
@@ -48,6 +49,21 @@ function SearchResults({ searchResults }) {
     const url = await makePlaylist(searchResults);
     console.log("%cURL: " + url, "color:green;");
     setIsCreating(false);
+  }
+
+  // Removing a song
+  const removeSong = (e) => {
+    e.preventDefault();
+    // e.target = button
+    // e.target.parentNode.parentNode.childNodes[0] --- div which contains index
+    // e.target.parentNode.parentNode.childNodes[0].textContent --- div's text
+    const div = e.target.parentNode.parentNode.childNodes[0];
+    const index = parseInt(div.textContent);
+    console.log("REMOVE", index);
+    searchResults.splice(index - 1, 1);
+    // Don't remove HTML elements as it causes React errors
+    // there probably exists a better way of doing this
+    div.parentNode.style.display = 'none';
   }
 
   return (
@@ -68,6 +84,7 @@ function SearchResults({ searchResults }) {
             {isCreating ? 'Creating...' : 'Create Playlist'}
           </button>
 
+            {/* Showing results */}
             {searchResults.map((searchResult, index) => (
               <div key={searchResult.id || index} className='flex justify-around items-center mt-8'>
                 <div className='ml-8 flex-[0_0]'>{index + 1}</div>
@@ -79,7 +96,11 @@ function SearchResults({ searchResults }) {
                   </div>
                 </a>
                 <AudioPlayer previewUrl={searchResult.preview_url} onPlay={handlePlay} />
-                <button className='flex-[0_0_16px] p-0 ml-4 mr-4 border-0 bg-transparent'><img src={removeicon} /></button>
+                <button className='flex-[0_0_16px] p-0 ml-4 mr-4 border-0 bg-transparent'
+                  onClick={removeSong}
+                >
+                <img src={removeicon}/>
+                </button>
               </div>
             ))}
           </div>
