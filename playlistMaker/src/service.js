@@ -375,22 +375,21 @@ async function getTracksByCriteria(params) {
     // TODO: refactoring so that sanitizing only happens once
     // works fine as of now
     const sanitized = constructURL(params, randomOffset);
-    // Has a warning on await for some reason but works correctly
     const tracks = await searchAndFilter(sanitized, accessToken);
     console.log("SEARCHES:", currentSearches, "TRACKS:", found_tracks.length);
     
     // Add the tracks
     for (const track of tracks) {
       if (found_tracks.length < limit) {
-        found_tracks.push(track);
+        if (!found_tracks.includes(track)) {
+          found_tracks.push(track);
+        }
       }
       else {
         // Limit is achieved
-        console.log("LIMIT REACHED");
         console.log("FINAL: ", found_tracks);
-        //return found_tracks;
         // Removing duplicates just in case
-        return [...new Set(found_tracks)];
+        return found_tracks;
       }
     }
 
@@ -423,9 +422,7 @@ async function getTracksByCriteria(params) {
   }
 
   console.log("FINAL: ", found_tracks);
-  //return found_tracks;
-  // Removing duplicates just in case
-  return [...new Set(found_tracks)];
+  return found_tracks;
 }
 
 /**
@@ -466,29 +463,25 @@ async function searchAndFilter(sanitized, accessToken) {
 /**
  * Creates a playlist for the user with the selected tracks
  * @param {Array} filteredTracks 
- * @param {Object} sanitized 
+ * @param {String} namePlaylist
  * @returns url to the playlist
  */
-export async function makePlaylist(filteredTracks/*, sanitized*/) {
+export async function makePlaylist(filteredTracks, namePlaylist) {
   // Step 6: Creating a playlist if the user checked the box and more than 0 tracks
   const userData = await getUserData();
   // Constructing a date identifier for now
   const formattedDate = constructDateNow();
-  const name = ("PLAYLIST", formattedDate);
+
+  const name = namePlaylist.trim().length > 0 ? namePlaylist : "PlaylistMaker " + formattedDate;
   // Other 2 parameters
   // Do we even want to let the user specify the description?
-  // For now outputs the current filters in a pretty format
-  let description = formattedDate;
-  //for (let filter in sanitized.filters) {
-    //description += (filter + ': ' + sanitized.filters[filter] + ' ');
-  //}
+  const description = "Made using PlaylistMaker " + formattedDate;
   // The user being able to set this will probably be handy
   const _public = true;
+
   const playlist = await createPlaylistSpotify(userData.id, name, description, _public);
   console.log("CREATED PLAYLIST:", playlist);
   const url = playlist.external_urls.spotify;
-  //console.log("LINK:", url);
-
   // Step 7: Add filtered tracks to the new playlist
   const playlist_snapshot = await addTracksToPlaylist(playlist, filteredTracks);
   // Snapshot is a version identifier for the playlist. 

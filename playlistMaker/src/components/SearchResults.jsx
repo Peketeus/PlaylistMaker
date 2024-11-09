@@ -32,6 +32,7 @@ function SearchResults({ searchResults }) {
   const [results, setResults] = useState(searchResults); // Local copy of searchResults, this is modified
   const [currentlyPlaying, setCurrentlyPlaying] = useState(null); // When playing a preview
   const [isCreating, setIsCreating] = useState(false); // Whether the playlist is being created
+  const [namePlaylist, setNamePlaylist] = useState('') // Name for the playlist
 
   // When removing a song
   useEffect(() => {
@@ -52,7 +53,7 @@ function SearchResults({ searchResults }) {
     // An example of doing something when the playlist is being created and when it finishes
     setIsCreating(true);
     // Get the link and show it somewhere on the page?
-    const url = await makePlaylist(results);
+    const url = await makePlaylist(results, namePlaylist);
     console.log("%cURL: " + url, "color:green;");
     setIsCreating(false);
   }
@@ -70,11 +71,18 @@ function SearchResults({ searchResults }) {
       {results && results.length > 0 ? (
         <div>
           <div className='relative min-w-[700px] max-w-[min(900px,60%)] h-auto mx-auto bg-[#272b36] py-8'>
-            <h2 className='text-4xl font-bold'>Search Results:</h2>
+            <h2 className='text-4xl font-bold mt-2'>Search Results:</h2>
+            <label className='absolute top-0 right-0 mt-2 mr-0 px-4 py-2 flex font-bold'>
+              Playlist name?
+              <input type="text" className='ml-2 bg-blue-300' maxLength='30'
+              value={namePlaylist}
+              onChange={(e) => setNamePlaylist(e.target.value)}>
+              </input>
+            </label>
             {/* Changing button appearance based on the state */}
             <button
-              className={`absolute top-0 right-0 mt-4 mr-4 px-4 py-2 font-semibold rounded transition duration-300
-                ${isCreating ? 'bg-gray-400 text-gray-200 cursor-not-allowed' : 'bg-blue-500 text-white hover:bg-blue-600'}`}
+              className={`absolute top-0 right-0 mt-12 mr-4 px-4 py-2 font-semibold rounded transition duration-300
+                  ${isCreating ? 'bg-gray-400 text-gray-200 cursor-not-allowed' : 'bg-blue-500 text-white hover:bg-blue-600'}`}
               onClick={handleCreatePlaylist}
               disabled={isCreating}
             >

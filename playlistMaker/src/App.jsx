@@ -3,7 +3,7 @@ import { Routes, Route, useNavigate } from 'react-router-dom';
 import SearchResults from './components/SearchResults';
 import SearchForm from './components/SearchForm'
 import './App.css';
-import { getToken, currentToken, getUserData, loginWithSpotifyClick, logoutClick, apiCallClick } from './service';
+import { getToken, currentToken, getUserData, loginWithSpotifyClick, logoutClick } from './service';
 import SpotifyLogo from './assets/Primary_Logo_White_CMYK.svg';
 
 function App() {
