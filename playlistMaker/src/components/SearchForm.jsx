@@ -8,10 +8,8 @@ function SearchForm({ setSearchResults }) {
     const [type, setType] = useState('track')
     const [genre, setGenre] = useState('')
     const [filteredGenres, setFilteredGenres] = useState([])
-    const [limit, setLimit] = useState('')
     const [yearFrom, setYearFrom] = useState('')
     const [yearTo, setYearTo] = useState('')
-    const [minPopularity, setMinPopularity] = useState("0")
     const [minDanceability, setMinDanceability] = useState("0")
     const [minEnergyLevel, setMinEnergyLevel] = useState("0")
     const [minAcousticness, setMinAcousticness] = useState("0")
@@ -21,7 +19,8 @@ function SearchForm({ setSearchResults }) {
     const [minSpeechiness, setMinSpeechiness] = useState("0")
     const [minTempo, setMinTempo] = useState("0")
     const [minValence, setMinValence] = useState("0")
-
+    const [limit, setLimit] = useState('')
+    const [isSearching, setIsSearching] = useState(false)
     //const [createPlaylist, setCreatePlaylist] = useState(false)
 
     // Filter what genres the search box offers upon user input
@@ -38,13 +37,13 @@ function SearchForm({ setSearchResults }) {
 
     const handleSubmit = async (e) => {
         e.preventDefault()
+        setIsSearching(true);
         const tracks = await search(
           {
             'genre': genre,
             'yearFrom': yearFrom,
             'yearTo': yearTo,
             'filters': {
-              'minPopularity': minPopularity,
               'minDanceability': minDanceability,
               'minEnergyLevel': minEnergyLevel,
               'minAcousticness': minAcousticness,
@@ -59,6 +58,7 @@ function SearchForm({ setSearchResults }) {
             }
           );
         setSearchResults(tracks);
+        setIsSearching(false);
     }
 
     return (
@@ -96,11 +96,9 @@ function SearchForm({ setSearchResults }) {
 
               {/* Other input fields */}
               {/* SLIDER RANGE: 0 to 1.0 */}
-              {/* EXCEPT: minPopularity (0 to 100) minLoudness(~-60 to 0) minTempo(~50 to 250) */}
+              {/* EXCEPT: minLoudness(~-60 to 0) minTempo(~50 to 250) */}
               <label htmlFor='yearFrom' className='text-right'>From (year): </label><InputField name="yearFrom" inputValue={yearFrom} setInputValue={setYearFrom} />
               <label htmlFor='yearTo' className='text-right'>To (year): </label><InputField name="yearTo" inputValue={yearTo} setInputValue={setYearTo} />
-              <label htmlFor='minPopularity' className='text-right'>minPopularity: </label>
-                <Slider name="minPopularity" inputValue={minPopularity} setInputValue={setMinPopularity} min="0" max="100" step="1"/>
               <label htmlFor='minDanceability' className='text-right'>minDanceability: </label>
                 <Slider name="minDanceability" inputValue={minDanceability} setInputValue={setMinDanceability} min="0" max="1" step="0.001"/>
               <label htmlFor='minEnergyLevel' className='text-right'>minEnergyLevel: </label>
@@ -128,7 +126,6 @@ function SearchForm({ setSearchResults }) {
                 value={limit}
                 onChange={(e) => {
                   const value = e.target.value;
-
                   // If field is empty, allow null-value
                   if (value === "" || (value >= 1 && value <= 50)) {
                     setLimit(value);
@@ -145,9 +142,15 @@ function SearchForm({ setSearchResults }) {
                 className='w-1/2'
               />
             </fieldset>
-
             <br />
-            <button type="submit">Search</button>
+            <button 
+              className= {`font-semibold rounded transition duration-300
+                ${isSearching ? 'bg-gray-400 text-gray-200 cursor-not-allowed' : 'bg-blue-500 text-white hover:bg-blue-600'}`}
+              disabled={isSearching}
+              type="submit"
+              >
+              {isSearching ? 'Searching...' : 'Search'}
+            </button>
         </form>
     )
 }
