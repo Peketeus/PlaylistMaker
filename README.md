@@ -65,14 +65,14 @@ Create a `.env` file in the root directory and add the following variables:
 
     - **VITE_API_CLIENT_ID=_yourClientID_**: Your Spotify application's client ID
 
-    Replace these with your own Spotify application credentials, which you can obtain from the [Spotify Developer Portal](https://developer.spotify.com/dashboard/applications).
+Replace these with your own Spotify application credentials, which you can obtain from the [Spotify Developer Portal](https://developer.spotify.com/dashboard/applications).
 
-    - **Note**: Keep your `.env` file safe!
+**Note**: Keep your `.env` file safe! Never reveal your client secret publicly! If you suspect that the secret key has been compromised, regenerate it immediately.
 
 ## License
+
+This project is licensed under the Apache License 2.0. See the [LICENSE](LICENSE) file for more details.
 
 This project uses a code base for Spotify authorization, implemented with the PKCE (Proof Key for Code Exchange) method. This authorization flow enables secure Spotify authentication within our application. The original authorization code is licensed under the Apache License 2.0, and we have made modifications to tailor it to our specific needs.
 
 The original code for the Spotify PKCE authorization can be found here: [repository](https://github.com/spotify/web-api-examples/blob/master/authorization/authorization_code_pkce/public/app.js).
-
-This project is licensed under the (TODO: Sovitaan lisenssistä!) License. See the [LICENSE](LICENSE) file for more details.
