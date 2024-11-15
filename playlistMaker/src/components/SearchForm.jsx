@@ -149,7 +149,7 @@ function SearchForm({ setSearchResults }) {
               disabled={isSearching}
               type="submit"
               >
-              {isSearching ? 'Searching...' : 'Search'}
+              {isSearching ? 'Generating...' : 'Generate'}
             </button>
         </form>
     )

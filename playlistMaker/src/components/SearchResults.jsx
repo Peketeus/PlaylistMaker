@@ -87,7 +87,7 @@ function SearchResults({ searchResults }) {
               disabled={isCreating}
             >
               {/* Changing text */}
-              {isCreating ? 'Creating...' : 'Create Playlist'}
+              {isCreating ? 'Saving...' : 'Save to Spotify'}
             </button>
 
             {/* Showing results */}
