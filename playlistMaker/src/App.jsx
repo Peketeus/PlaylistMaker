@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Routes, Route, useNavigate } from 'react-router-dom';
 import SearchResults from './components/SearchResults';
 import SearchForm from './components/SearchForm'
+import PrivacyPolicy from "./components/PrivacyPolicy";
 import './App.css';
 import { getToken, currentToken, getUserData, loginWithSpotifyClick, logoutClick } from './service';
 import SpotifyLogo from './assets/Primary_Logo_White_CMYK.svg';
@@ -48,6 +49,7 @@ function App() {
   return (
     <div className="App">
       <h1>PlaylistMaker</h1>
+      <PrivacyPolicy />
 
       {!isLoggedIn ? (
         <div className='absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 m-0 p-0'>
