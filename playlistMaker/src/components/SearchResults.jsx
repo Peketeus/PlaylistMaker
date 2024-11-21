@@ -67,53 +67,66 @@ function SearchResults({ searchResults }) {
   }
 
   return (
-    <div className='pt-8'>
+    <div className="pt-8">
       {results && results.length > 0 ? (
         <div>
-          <div className='relative min-w-[700px] max-w-[min(900px,60%)] h-auto mx-auto bg-[#272b36] py-8'>
-            <h2 className='text-4xl font-bold mt-2'>Search Results:</h2>
-            <label className='absolute top-0 right-0 mt-2 mr-0 px-4 py-2 flex font-bold'>
-              Playlist name?
-              <input type="text" className='ml-2 bg-blue-300' maxLength='30'
-              value={namePlaylist}
-              onChange={(e) => setNamePlaylist(e.target.value)}>
-              </input>
+          {/* Search Results Container */}
+          <div className="relative min-w-[700px] max-w-[min(900px,60%)] h-auto mx-auto bg-[#272b36] py-8">
+            <div className="flex flex-col gap-4 items-end mr-4">
+            <label>
+              Playlist name:
+              <input
+                type="text"
+                className="ml-2 bg-blue-300"
+                maxLength="30"
+                value={namePlaylist}
+                onChange={(e) => setNamePlaylist(e.target.value)}
+              />
             </label>
-            {/* Changing button appearance based on the state */}
             <button
-              className={`absolute top-0 right-0 mt-12 mr-4 px-4 py-2 font-semibold rounded transition duration-300
-                  ${isCreating ? 'bg-gray-400 text-gray-200 cursor-not-allowed' : 'bg-blue-500 text-white hover:bg-blue-600'}`}
+              className={`font-semibold rounded transition duration-300
+                ${isCreating ? 'bg-gray-400 text-gray-200 cursor-not-allowed' : 'bg-blue-500 text-white hover:bg-blue-600'}`}
               onClick={handleCreatePlaylist}
               disabled={isCreating}
             >
-              {/* Changing text */}
-              {isCreating ? 'Creating...' : 'Create Playlist'}
+              {isCreating ? 'Saving...' : 'Save to Spotify'}
             </button>
-
-            {/* Showing results */}
-            {results.map((result, index) => (
-              <div key={result.id || index} className='flex justify-around items-center mt-8'>
-                <div className='ml-8 flex-[0_0]'>{index + 1}</div>
-                <a className='flex flex-[1_0_40%] max-w-[40%] gap-4 ml-8 no-underline text-inherit hover:text-inherit'
-                  href={result.external_urls.spotify} target="_blank">
-                  <img className='w-[64px] h-[64px]' src={result.album.images[2].url} />
-                  <div>
-                    <p className='resultSong'>{result.name}</p>
-                    <p className='resultArtist'>{result.artists[0].name}</p>
-                  </div>
-                </a>
-                <AudioPlayer previewUrl={result.preview_url} onPlay={handlePlay} />
-                <button className='flex-[0_0_16px] p-0 ml-4 mr-4 border-0 bg-transparent'
-                  onClick={() => removeSong(index)}
-                >
-                  <img src={removeicon} />
-                </button>
-              </div>
-            ))}
+            </div>
+            <h2 className="text-4xl font-bold mt-2">Search Results:</h2>
+            {/* Scrollable Results */}
+            <div
+              className="overflow-y-auto mt-8 mx-4 p-4 border-[2px] border-solid border-black rounded-xl shadow-[0_0_5px_5px_rgba(15,15,15,0.7)]"
+              style={{
+                maxHeight: '60vh'
+              }}
+            >
+              {results.map((result, index) => (
+                <div key={result.id || index} className="flex justify-around items-center mb-4">
+                  <div className="ml-8 flex-[0_0]">{index + 1}</div>
+                  <a
+                    className="flex flex-[1_0_40%] max-w-[40%] gap-4 ml-8 mr-8 no-underline text-inherit hover:text-inherit"
+                    href={result.external_urls.spotify}
+                    target="_blank"
+                  >
+                    <img className="w-[64px] h-[64px]" src={result.album.images[2].url} alt="Album Art" />
+                    <div>
+                      <p className="resultSong">{result.name}</p>
+                      <p className="resultArtist">{result.artists[0].name}</p>
+                    </div>
+                  </a>
+                  <AudioPlayer previewUrl={result.preview_url} onPlay={handlePlay} />
+                  <button
+                    className="flex-[0_0_16px] p-0 ml-4 mr-4 border-0 bg-transparent"
+                    onClick={() => removeSong(index)}
+                  >
+                    <img src={removeicon} alt="Remove" />
+                  </button>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
-      ) : (null)}
-
+      ) : null}
     </div>
   );
 }

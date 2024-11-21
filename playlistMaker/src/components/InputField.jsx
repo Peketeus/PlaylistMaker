@@ -6,7 +6,7 @@ function InputField({ name, inputValue, setInputValue }) {
           type="text"
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
-          className="w-1/2 min-w-[10em]"
+          className="w-[15em]"
         />
       </div>
     );

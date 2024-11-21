@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Routes, Route, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import SearchResults from './components/SearchResults';
 import SearchForm from './components/SearchForm'
 import PrivacyPolicy from "./components/PrivacyPolicy";
@@ -63,19 +63,22 @@ function App() {
           <h2>Welcome, {userData?.display_name}</h2>
           <img className='m-[0_auto] max-w-[6%] max-h-[auto] mb-4' src={userData?.images?.[0]?.url} />
 
+      {/* Render the SearchForm without any CSS if no search results */}
+      {searchResults.length === 0 ? (
+        <SearchForm setSearchResults={setSearchResults} />
+      ) : (
+        // Render both SearchForm and SearchResults with layout if results exist
+        <div className="flex flex-row items-center content-center justify-center pl-64">
           <SearchForm setSearchResults={setSearchResults} />
-
-          <div>
-            <SearchResults searchResults={searchResults} />
-            <div className='mt-8'>
-              <button onClick={logoutClick}>Log Out</button>
-            </div>
+          <SearchResults searchResults={searchResults} />
+        </div>
+      )}
+          
+          <div className='mt-8'>
+            <button onClick={logoutClick}>Log Out</button>
           </div>
         </div>
       )}
-      <div className='spotify-watermark'>
-        <p>Powered by</p><img src={SpotifyLogo} alt='Spotify' /> {/* TODO: make mobile/small screen friendly */}
-      </div>
     </div>
   );
 }

@@ -73,7 +73,7 @@ function SearchForm({ setSearchResults }) {
                 id='type'
                 value={type}
                 onChange={(e) => setType(e.target.value)}
-                className='w-1/2 min-w-[10em]'
+                className='w-[15em]'
               >
                 <option value="track">Track</option>
               </select>
@@ -86,7 +86,7 @@ function SearchForm({ setSearchResults }) {
                 id="genre"
                 value={genre}
                 onChange={(e) => setGenre(e.target.value)}
-                className="w-1/2 min-w-[10em]"
+                className="w-[15em]"
               />
               <datalist id="genre-options">
                 {filteredGenres.map((g) => (
@@ -139,7 +139,7 @@ function SearchForm({ setSearchResults }) {
                   // Remove all non-numbers
                   e.target.value = e.target.value.replace(/[^0-9]/g, "");
                 }}
-                className='w-1/2'
+                className='w-[15em]'
               />
             </fieldset>
             <br />
@@ -149,7 +149,7 @@ function SearchForm({ setSearchResults }) {
               disabled={isSearching}
               type="submit"
               >
-              {isSearching ? 'Searching...' : 'Search'}
+              {isSearching ? 'Generating...' : 'Generate playlist'}
             </button>
         </form>
     )
