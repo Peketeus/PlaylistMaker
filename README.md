@@ -71,7 +71,7 @@ Replace these with your own Spotify application credentials, which you can obtai
 
 ## License
 
-This project is licensed under the Apache License 2.0. See the [LICENSE](LICENSE) file for more details.
+This project is licensed under the Apache License 2.0. See the [LICENSE](LICENSE.txt) file for more details.
 
 This project uses a code base for Spotify authorization, implemented with the PKCE (Proof Key for Code Exchange) method. This authorization flow enables secure Spotify authentication within our application. The original authorization code is licensed under the Apache License 2.0, and we have made modifications to tailor it to our specific needs.
 
