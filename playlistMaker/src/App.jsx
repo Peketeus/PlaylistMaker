@@ -9,7 +9,7 @@ import SpotifyLogo from './assets/Primary_Logo_White_CMYK.svg';
 function App() {
   const [userData, setUserData] = useState(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [searchResults, setSearchResults] = useState([]);
+  const [searchResults, setSearchResults] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
