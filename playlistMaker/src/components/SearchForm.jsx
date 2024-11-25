@@ -14,8 +14,8 @@ function SearchForm({ setSearchResults }) {
     const [minEnergyLevel, setMinEnergyLevel] = useState("0")
     const [minAcousticness, setMinAcousticness] = useState("0")
     const [minInstrumentalness, setMinInstrumentalness] = useState("0")
-    const [minLiveness, setmMinLiveness] = useState("0")
-    const [minLoudness, setMinLoudness] = useState("-60")
+    //const [minLiveness, setmMinLiveness] = useState("0")
+    //const [minLoudness, setMinLoudness] = useState("-60")
     const [minSpeechiness, setMinSpeechiness] = useState("0")
     const [minTempo, setMinTempo] = useState("0")
     const [minValence, setMinValence] = useState("0")
@@ -48,8 +48,8 @@ function SearchForm({ setSearchResults }) {
               'minEnergyLevel': minEnergyLevel,
               'minAcousticness': minAcousticness,
               'minInstrumentalness': minInstrumentalness,
-              'minLiveness': minLiveness,
-              'minLoudness': minLoudness,
+              //'minLiveness': minLiveness,
+              //'minLoudness': minLoudness,
               'minSpeechiness': minSpeechiness,
               'minTempo': minTempo,
               'minValence': minValence,
@@ -99,25 +99,27 @@ function SearchForm({ setSearchResults }) {
               {/* EXCEPT: minLoudness(~-60 to 0) minTempo(~50 to 250) */}
               <label htmlFor='yearFrom' className='text-right'>From (year): </label><InputField name="yearFrom" inputValue={yearFrom} setInputValue={setYearFrom} />
               <label htmlFor='yearTo' className='text-right'>To (year): </label><InputField name="yearTo" inputValue={yearTo} setInputValue={setYearTo} />
-              <label htmlFor='minDanceability' className='text-right'>minDanceability: </label>
+              <label htmlFor='minDanceability' className='text-right'>Danceability: </label>
                 <Slider name="minDanceability" inputValue={minDanceability} setInputValue={setMinDanceability} min="0" max="1" step="0.001"/>
-              <label htmlFor='minEnergyLevel' className='text-right'>minEnergyLevel: </label>
+              <label htmlFor='minEnergyLevel' className='text-right'>EnergyLevel: </label>
                 <Slider name="minEnergyLevel" inputValue={minEnergyLevel} setInputValue={setMinEnergyLevel} min="0" max="1" step="0.001"/>
-              <label htmlFor='minAcousticness' className='text-right'>minAcousticness: </label>
+              <label htmlFor='minAcousticness' className='text-right'>Acousticness: </label>
                 <Slider name="minAcousticness" inputValue={minAcousticness} setInputValue={setMinAcousticness} min="0" max="1" step="0.001"/>
-              <label htmlFor='minInstrumentalness' className='text-right'>minInstrumentalness: </label>
+              <label htmlFor='minInstrumentalness' className='text-right'>Instrumentalness: </label>
                 <Slider name="minInstrumentalness" inputValue={minInstrumentalness} setInputValue={setMinInstrumentalness} min="0" max="1" step="0.001"/>
+              {/* 
               <label htmlFor='minLiveness' className='text-right'>minLiveness: </label>
                 <Slider name="minLiveness" inputValue={minLiveness} setInputValue={setmMinLiveness} min="0" max="1" step="0.001"/>
               <label htmlFor='minLoudness' className='text-right'>minLoudness: </label>
                 <Slider name="minLoudness" inputValue={minLoudness} setInputValue={setMinLoudness} min="-60" max="0" step="0.5"/>
-              <label htmlFor='minSpeechiness' className='text-right'>minSpeechiness: </label>
+              */}
+              <label htmlFor='minSpeechiness' className='text-right'>Speechiness: </label>
                 <Slider name="minSpeechiness" inputValue={minSpeechiness} setInputValue={setMinSpeechiness} min="0" max="1" step="0.001"/>
-              <label htmlFor='minTempo' className='text-right'>minTempo: </label>
+              <label htmlFor='minTempo' className='text-right'>Tempo: </label>
                 <Slider name="minTempo" inputValue={minTempo} setInputValue={setMinTempo} min="50" max="250" step="1"/>
-              <label htmlFor='minValence' className='text-right'>minValence: </label>
+              <label htmlFor='minValence' className='text-right'>Valence: </label>
                 <Slider name="minValence" inputValue={minValence} setInputValue={setMinValence} min="0" max="1" step="0.001"/>
-
+              
               {/* Limit */}
               <label htmlFor="limit" className='text-right'>Limit: </label>
               <input

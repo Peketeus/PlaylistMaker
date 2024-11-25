@@ -214,8 +214,8 @@ function filterTracksByFilters(tracks, audio_features, filters) {
       audio_features[track.id].energy >= filters.minEnergyLevel &&
       audio_features[track.id].acousticness >= filters.minAcousticness &&
       audio_features[track.id].instrumentalness >= filters.minInstrumentalness &&
-      audio_features[track.id].liveness >= filters.minLiveness &&
-      audio_features[track.id].loudness >= filters.minLoudness &&
+      //audio_features[track.id].liveness >= filters.minLiveness &&
+      //audio_features[track.id].loudness >= filters.minLoudness &&
       audio_features[track.id].speechiness >= filters.minSpeechiness &&
       audio_features[track.id].tempo >= filters.minTempo &&
       audio_features[track.id].valence >= filters.minValence
@@ -229,10 +229,11 @@ function filterTracksByFilters(tracks, audio_features, filters) {
 
 // Fetch audio features for given track IDs
 async function fetchAudioFeatures(trackIds, accessToken) {
-  if (trackIds.length === 0) return [];
+  if (trackIds.length === 0) {
+    return [];
+  }
 
   const url = `https://api.spotify.com/v1/audio-features?ids=${trackIds.join(',')}`;
-
   const response = await fetch(url, {
       method: 'GET',
       headers: {
@@ -242,18 +243,19 @@ async function fetchAudioFeatures(trackIds, accessToken) {
   });
 
   if (response.ok) {
-      const data = await response.json();
-      return data.audio_features;
-  } else {
-      console.error('Error fetching audio features:', response.status, response.statusText);
-      return [];
+    const data = await response.json();
+    return data.audio_features;
+  } 
+  else {
+    console.error('Error fetching audio features:', response.status, response.statusText);
+    return [];
   }
 }
 
 /**
  * Sanitizes all inputs from the user and constructs the url
- * @param {Object} params 
- * @param {Number} offset 
+ * @param {Object} params
+ * @param {Number} offset
  * @returns object containing the url and filters
  */
 function constructURL(params, offset) {
@@ -265,8 +267,8 @@ function constructURL(params, offset) {
   const defaultMinEnergyLevel = 0;
   const defaultMinAcousticness = 0;
   const defaultMinInstrumentalness = 0;
-  const defaultMinLiveness = 0;
-  const defaultMinLoudness = -60; // In decibels, maybe lower?
+  //const defaultMinLiveness = 0;
+  //const defaultMinLoudness = -60; // In decibels, maybe lower?
   const defaultMinSpeechiness = 0;
   const defaultMinTempo = 0; // 50 very slow, but keep at 0?
   const defaultMinValence = 0;
@@ -282,21 +284,21 @@ function constructURL(params, offset) {
   const sanitizedMinEnergyLevel = params.filters.minEnergyLevel ? parseFloat(params.filters.minEnergyLevel.trim()) : defaultMinEnergyLevel;
   const sanitizedMinAcousticness = params.filters.minAcousticness ? parseFloat(params.filters.minAcousticness.trim()) : defaultMinAcousticness;
   const sanitizedMinInstrumentalness = params.filters.minInstrumentalness ? parseFloat(params.filters.minInstrumentalness.trim()) : defaultMinInstrumentalness;
-  const sanitizedMinLiveness = params.filters.minLiveness ? parseFloat(params.filters.minLiveness.trim()) : defaultMinLiveness;
-  const sanitizedMinLoudness = params.filters.minLoudness ? parseFloat(params.filters.minLoudness.trim()) : defaultMinLoudness;
+  //const sanitizedMinLiveness = params.filters.minLiveness ? parseFloat(params.filters.minLiveness.trim()) : defaultMinLiveness;
+  //const sanitizedMinLoudness = params.filters.minLoudness ? parseFloat(params.filters.minLoudness.trim()) : defaultMinLoudness;
   const sanitizedMinSpeechiness = params.filters.minSpeechiness ? parseFloat(params.filters.minSpeechiness.trim()) : defaultMinSpeechiness;
   const sanitizedMinTempo = params.filters.minTempo ? parseFloat(params.filters.minTempo.trim()) : defaultMinTempo;
   const sanitizedMinValence = params.filters.minValence ? parseFloat(params.filters.minValence.trim()) : defaultMinValence;
 
   // Filters, same as when constructing them in SearchForm
-  // TODO: consider just changing the params and not create a new one
+  // TODO: consider just changing the params and not create a new one???
   const filters = {
     'minDanceability': sanitizedMinDanceability,
     'minEnergyLevel': sanitizedMinEnergyLevel,
     'minAcousticness': sanitizedMinAcousticness,
     'minInstrumentalness': sanitizedMinInstrumentalness,
-    'minLiveness': sanitizedMinLiveness,
-    'minLoudness': sanitizedMinLoudness,
+    //'minLiveness': sanitizedMinLiveness,
+    //'minLoudness': sanitizedMinLoudness,
     'minSpeechiness': sanitizedMinSpeechiness,
     'minTempo': sanitizedMinTempo,
     'minValence': sanitizedMinValence,
@@ -315,7 +317,7 @@ function constructURL(params, offset) {
     queryParams += `year:${sanitizedYearFrom}-${sanitizedYearTo}&`;
   }
   // Remove trailing & if exists
-  queryParams = queryParams.substring(0, queryParams.length-1);
+  queryParams = queryParams.substring(0, queryParams.length - 1);
   if (queryParams.length !== 0) {
     queryParams += '&';
   }
@@ -380,16 +382,13 @@ async function getTracksByCriteria(params) {
     
     // Add the tracks
     for (const track of tracks) {
-      if (found_tracks.length < limit) {
-        if (!found_tracks.includes(track)) {
-          found_tracks.push(track);
-        }
-      }
-      else {
-        // Limit is achieved
+      if (limit <= found_tracks.length) {
         console.log("FINAL: ", found_tracks);
-        // Removing duplicates just in case
         return found_tracks;
+      }
+      // Check for duplicate
+      if (!found_tracks.some(found_track => found_track.id === track.id)) {
+        found_tracks.push(track);
       }
     }
 
