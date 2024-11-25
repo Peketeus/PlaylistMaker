@@ -33,10 +33,13 @@ function SearchResults({ searchResults }) {
   const [currentlyPlaying, setCurrentlyPlaying] = useState(null); // When playing a preview
   const [isSaving, setIsSaving] = useState(false); // Whether the playlist is being saved
   const [namePlaylist, setNamePlaylist] = useState('') // Name for the playlist
+  const [playlistUrl, setPlaylistUrl] = useState(null); // Url for the saved playlist
 
-  // When removing a song
+  // When new results are generated or removing a song
   useEffect(() => {
     setResults(searchResults);
+    setNamePlaylist('');
+    setPlaylistUrl(null);
   }, [searchResults]);
 
   const handlePlay = (audioElement) => {
@@ -54,6 +57,7 @@ function SearchResults({ searchResults }) {
     setIsSaving(true);
     // Get the link and show it somewhere on the page?
     const url = await makePlaylist(results, namePlaylist);
+    setPlaylistUrl(url);
     console.log("%cURL: " + url, "color:green;");
     setIsSaving(false);
   }
@@ -76,7 +80,9 @@ function SearchResults({ searchResults }) {
           <div className='relative min-w-[700px] max-w-[min(900px,60%)] h-auto mx-auto bg-[#272b36] py-8'>
             <h2 className='text-4xl font-bold mt-2'>Search results:</h2>
             <p>{results.length} elements</p>
-            <label className='absolute top-0 right-0 mt-2 mr-0 px-4 py-2 flex font-bold'>
+
+            {/* Playlist saving */}
+            <label className='absolute top-0 right-0 mt-2 px-4 py-2 flex font-bold'>
               Playlist name (optional)
               <input type="text" className='ml-2 bg-blue-300' maxLength='30'
               value={namePlaylist}
@@ -85,7 +91,7 @@ function SearchResults({ searchResults }) {
             </label>
             {/* Changing button appearance based on the state */}
             <button
-              className={`absolute top-0 right-0 mt-12 mr-4 px-4 py-2 font-semibold rounded transition duration-300
+              className={`absolute top-0 right-4 mt-12 px-4 py-2 font-semibold rounded transition duration-300
                   ${isSaving ? 'bg-gray-400 text-gray-200 cursor-not-allowed' : 'bg-blue-500 text-white hover:bg-blue-600'}`}
               onClick={handleSavePlaylist}
               disabled={isSaving}
@@ -93,8 +99,16 @@ function SearchResults({ searchResults }) {
               {/* Changing text */}
               {isSaving ? 'Saving...' : 'Save to Spotify'}
             </button>
-
-            {/* Showing results */}
+            {/* Link to the playlist */}
+            {playlistUrl && 
+            <label className='absolute top-20 right-8 mt-3 py-2 flex font-bold'>
+              <a href={playlistUrl}>
+                Saved playlist
+              </a>
+            </label>
+            }
+            
+            {/* Results */}
             {results.map((result, index) => (
               <div key={result.id || index} className='flex justify-around items-center mt-8'>
                 <div className='ml-8 flex-[0_0]'>{index + 1}</div>
