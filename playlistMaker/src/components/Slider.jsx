@@ -9,7 +9,7 @@ function Slider({ name, min, max, step, inputValue, setInputValue }) {
           step={step}
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
-          className="w-1/2 min-w-[10em]"
+          className="w-[15em]"
         />
       </div>
     );
