@@ -67,7 +67,7 @@ function SearchForm({ setSearchResults }) {
             {/* Contains fields */}
             <fieldset className=' w-[50%] m-[0_auto] grid grid-cols-[0.75fr_1fr] gap-3'>
 
-              {/* Type chooser */}
+              {/* Type chooser - delete? */}
               <label htmlFor='type' className='text-right'>Type: </label>
               <select
                 id='type'

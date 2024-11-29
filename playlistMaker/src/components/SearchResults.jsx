@@ -95,14 +95,14 @@ function SearchResults({ searchResults }) {
             <h2 className="text-4xl font-bold mt-2">Search Results:</h2>
             {/* Scrollable Results */}
             <div
-              className="overflow-y-auto mt-8 mx-4 p-4 border-[2px] border-solid border-black rounded-xl shadow-[0_0_5px_5px_rgba(15,15,15,0.7)]"
+              className="overflow-y-auto overflow-x-hidden mt-8 mx-4 p-4 border-[2px] border-solid border-black rounded-xl shadow-[0_0_5px_5px_rgba(15,15,15,0.7)]"
               style={{
                 maxHeight: '60vh'
               }}
             >
               {results.map((result, index) => (
-                <div key={result.id || index} className="flex justify-around items-center mb-4">
-                  <div className="ml-8 flex-[0_0]">{index + 1}</div>
+                <div key={result.id || index} className="flex justify-around items-center mb-4 mr-4">
+                  <div className="ml-4 flex-[0_0_2rem] text-center">{index + 1}</div>
                   <a
                     className="flex flex-[1_0_40%] max-w-[40%] gap-4 ml-8 mr-8 no-underline text-inherit hover:text-inherit"
                     href={result.external_urls.spotify}
@@ -116,7 +116,7 @@ function SearchResults({ searchResults }) {
                   </a>
                   <AudioPlayer previewUrl={result.preview_url} onPlay={handlePlay} />
                   <button
-                    className="flex-[0_0_16px] p-0 ml-4 mr-4 border-0 bg-transparent"
+                    className="flex-[0_0_16px] p-0 border-0 bg-transparent"
                     onClick={() => removeSong(index)}
                   >
                     <img src={removeicon} alt="Remove" />
