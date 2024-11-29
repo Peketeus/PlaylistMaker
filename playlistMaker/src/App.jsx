@@ -10,7 +10,7 @@ import SpotifyLogo from './assets/Primary_Logo_White_CMYK.svg';
 function App() {
   const [userData, setUserData] = useState(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [searchResults, setSearchResults] = useState([]);
+  const [searchResults, setSearchResults] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -59,21 +59,24 @@ function App() {
 
         // Display if the user is logged in
         <div>
-
           <h2>Welcome, {userData?.display_name}</h2>
           <img className='m-[0_auto] max-w-[6%] max-h-[auto] mb-4' src={userData?.images?.[0]?.url} />
-
-          {/* Render the SearchForm without any CSS if no search results */}
-          {searchResults.length === 0 ? (
-            <SearchForm setSearchResults={setSearchResults} />
-          ) : (
-            // Render both SearchForm and SearchResults with layout if results exist
-            <div className="flex flex-row items-center content-center justify-center pl-64">
+            {/* Only on first render */}
+            {!searchResults ? (
               <SearchForm setSearchResults={setSearchResults} />
-              <SearchResults searchResults={searchResults} />
-            </div>
-          )}
-
+            // Subsequent renders
+            ) : searchResults.length === 0 ? (
+                <div>
+                  <SearchForm setSearchResults={setSearchResults} />
+                  <SearchResults searchResults={searchResults} />
+                </div>
+              ) : (
+                <div className="flex flex-row items-center content-center justify-center pl-64">
+                  <SearchForm setSearchResults={setSearchResults} />
+                  <SearchResults searchResults={searchResults} />
+                </div>
+              )
+            }
           <div className='mt-8'>
             <button onClick={logoutClick}>Log Out</button>
           </div>

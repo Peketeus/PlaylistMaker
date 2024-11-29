@@ -211,11 +211,11 @@ function filterTracksByFilters(tracks, audio_features, filters) {
     if (feature) {
       return (
       audio_features[track.id].danceability >= filters.minDanceability &&
-      audio_features[track.id].energy >= filters.minEnergyLevel &&
+      audio_features[track.id].energy >= filters.minEnergy &&
       audio_features[track.id].acousticness >= filters.minAcousticness &&
       audio_features[track.id].instrumentalness >= filters.minInstrumentalness &&
-      audio_features[track.id].liveness >= filters.minLiveness &&
-      audio_features[track.id].loudness >= filters.minLoudness &&
+      //audio_features[track.id].liveness >= filters.minLiveness &&
+      //audio_features[track.id].loudness >= filters.minLoudness &&
       audio_features[track.id].speechiness >= filters.minSpeechiness &&
       audio_features[track.id].tempo >= filters.minTempo &&
       audio_features[track.id].valence >= filters.minValence
@@ -229,10 +229,11 @@ function filterTracksByFilters(tracks, audio_features, filters) {
 
 // Fetch audio features for given track IDs
 async function fetchAudioFeatures(trackIds, accessToken) {
-  if (trackIds.length === 0) return [];
+  if (trackIds.length === 0) {
+    return [];
+  }
 
   const url = `https://api.spotify.com/v1/audio-features?ids=${trackIds.join(',')}`;
-
   const response = await fetch(url, {
       method: 'GET',
       headers: {
@@ -242,90 +243,93 @@ async function fetchAudioFeatures(trackIds, accessToken) {
   });
 
   if (response.ok) {
-      const data = await response.json();
-      return data.audio_features;
-  } else {
-      console.error('Error fetching audio features:', response.status, response.statusText);
-      return [];
+    const data = await response.json();
+    return data.audio_features;
+  } 
+  else {
+    console.error('Error fetching audio features:', response.status, response.statusText);
+    return [];
   }
 }
 
 /**
  * Sanitizes all inputs from the user and constructs the url
- * @param {Object} params 
- * @param {Number} offset 
+ * @param {Object} params
+ * @param {Number} offset
  * @returns object containing the url and filters
  */
 function constructURL(params, offset) {
-  // Defaults TODO: delete? params will always contain default values see SearchForm.jsx states
-  //const defaultGenre = '';
-  const defaultYearFrom = 1900; // ?
-  const defaultYearTo = new Date().getFullYear();
-  const defaultMinDanceability = 0;
-  const defaultMinEnergyLevel = 0;
-  const defaultMinAcousticness = 0;
-  const defaultMinInstrumentalness = 0;
-  const defaultMinLiveness = 0;
-  const defaultMinLoudness = -60; // In decibels, maybe lower?
-  const defaultMinSpeechiness = 0;
-  const defaultMinTempo = 0; // 50 very slow, but keep at 0?
-  const defaultMinValence = 0;
-  const defaultLimit = 50;
+  // Defaults
+  const defaults = {
+    //genre: '',
+    yearFrom: 1900,
+    yearTo: new Date().getFullYear(),
+    filters: {
+      minDanceability: 0,
+      minEnergy: 0,
+      minAcousticness: 0,
+      minInstrumentalness: 0,
+      //minLiveness: 0,
+      //minLoundess: -60,
+      minSpeechiness: 0,
+      minTempo: 0,
+      minValence: 0,
+    },
+    limit: 50,
+  };
 
-  // Sanitized inputs for the api call
-  const sanitizedGenre = params.genre?.trim().toLowerCase() || null;
-  const sanitizedYearFrom = params.yearFrom ? parseInt(params.yearFrom.trim()) : defaultYearFrom;
-  const sanitizedYearTo = params.yearTo ? parseInt(params.yearTo.trim()) : defaultYearTo;
-
-  // Filters
-  const sanitizedMinDanceability = params.filters.minDanceability ? parseFloat(params.filters.minDanceability.trim()) : defaultMinDanceability;
-  const sanitizedMinEnergyLevel = params.filters.minEnergyLevel ? parseFloat(params.filters.minEnergyLevel.trim()) : defaultMinEnergyLevel;
-  const sanitizedMinAcousticness = params.filters.minAcousticness ? parseFloat(params.filters.minAcousticness.trim()) : defaultMinAcousticness;
-  const sanitizedMinInstrumentalness = params.filters.minInstrumentalness ? parseFloat(params.filters.minInstrumentalness.trim()) : defaultMinInstrumentalness;
-  const sanitizedMinLiveness = params.filters.minLiveness ? parseFloat(params.filters.minLiveness.trim()) : defaultMinLiveness;
-  const sanitizedMinLoudness = params.filters.minLoudness ? parseFloat(params.filters.minLoudness.trim()) : defaultMinLoudness;
-  const sanitizedMinSpeechiness = params.filters.minSpeechiness ? parseFloat(params.filters.minSpeechiness.trim()) : defaultMinSpeechiness;
-  const sanitizedMinTempo = params.filters.minTempo ? parseFloat(params.filters.minTempo.trim()) : defaultMinTempo;
-  const sanitizedMinValence = params.filters.minValence ? parseFloat(params.filters.minValence.trim()) : defaultMinValence;
-
-  // Filters, same as when constructing them in SearchForm
-  // TODO: consider just changing the params and not create a new one
-  const filters = {
-    'minDanceability': sanitizedMinDanceability,
-    'minEnergyLevel': sanitizedMinEnergyLevel,
-    'minAcousticness': sanitizedMinAcousticness,
-    'minInstrumentalness': sanitizedMinInstrumentalness,
-    'minLiveness': sanitizedMinLiveness,
-    'minLoudness': sanitizedMinLoudness,
-    'minSpeechiness': sanitizedMinSpeechiness,
-    'minTempo': sanitizedMinTempo,
-    'minValence': sanitizedMinValence,
-  }
+  // Sanitized inputs
+  const sanitizedInputs = {
+    genre: params.genre?.trim().toLowerCase() || null,
+    yearFrom: sanitizeFilter(params.yearFrom, parseInt, defaults.yearFrom),
+    yearTo: sanitizeFilter(params.yearTo, parseInt, defaults.yearTo),
+    limit: sanitizeFilter(params.limit, parseInt, defaults.limit),
+    filters: {
+      minDanceability: sanitizeFilter('minDanceability', parseFloat, defaults.filters.minDanceability),
+      minEnergy: sanitizeFilter('minEnergy', parseFloat, defaults.filters.minEnergy),
+      minAcousticness: sanitizeFilter('minAcousticness', parseFloat, defaults.filters.minAcousticness),
+      minInstrumentalness: sanitizeFilter('minInstrumentalness', parseFloat, defaults.filters.minInstrumentalness),
+      //minLiveness: sanitizeFilter('minLiveness', parseFloat, defaults.filters.minLiveness),
+      //minLoudness: sanitizeFilter('minLoudness', parseFloat, defaults.filters.minLoudness),
+      minSpeechiness: sanitizeFilter('minSpeechiness', parseFloat, defaults.filters.minSpeechiness),
+      minTempo: sanitizeFilter('minTempo', parseFloat, defaults.filters.minTempo),
+      minValence: sanitizeFilter('minValence', parseFloat, defaults.filters.minValence),
+    },
+  };
 
   // Currently per api call
-  const sanitizedLimit = params.limit ? parseInt(params.limit) : defaultLimit;
-
+  const sanitizedLimit = sanitizeFilter(params.limit, parseInt, defaults.limit);
   let queryParams = '';
   // Conditionally add parameters to query
-  if (sanitizedGenre) {
-    queryParams += `genre=${sanitizedGenre}&`;
+  if (sanitizedInputs.genre) {
+    queryParams += `genre=${sanitizedInputs.genre}&`;
   }
   // Always atm
-  if (sanitizedYearTo) {
-    queryParams += `year:${sanitizedYearFrom}-${sanitizedYearTo}&`;
+  if (sanitizedInputs.yearTo) {
+    queryParams += `year:${sanitizedInputs.yearFrom}-${sanitizedInputs.yearTo}&`;
   }
   // Remove trailing & if exists
-  queryParams = queryParams.substring(0, queryParams.length-1);
+  queryParams = queryParams.substring(0, queryParams.length - 1);
   if (queryParams.length !== 0) {
     queryParams += '&';
   }
   queryParams += 'type=track';
-
   const url = `https://api.spotify.com/v1/search?q=${queryParams}&limit=${sanitizedLimit}&offset=${offset}`;
   return {
     'url': url,
-    'filters': filters,
+    'filters': sanitizedInputs.filters,
   };;
+}
+
+/**
+ * Sanitizer the given filter with the given parser
+ * @param {String} filter 
+ * @param {Function} parser 
+ * @param {Number} _default 
+ * @returns 
+ */
+function sanitizeFilter(filter, parser, _default) {
+  return filter ? parser(filter.trim()) : _default;
 }
 
 /**
@@ -380,16 +384,13 @@ async function getTracksByCriteria(params) {
     
     // Add the tracks
     for (const track of tracks) {
-      if (found_tracks.length < limit) {
-        if (!found_tracks.includes(track)) {
-          found_tracks.push(track);
-        }
-      }
-      else {
-        // Limit is achieved
+      if (limit <= found_tracks.length) {
         console.log("FINAL: ", found_tracks);
-        // Removing duplicates just in case
         return found_tracks;
+      }
+      // Check for duplicate
+      if (!found_tracks.some(found_track => found_track.id === track.id)) {
+        found_tracks.push(track);
       }
     }
 
@@ -574,6 +575,7 @@ async function addTracksToPlaylist(playlist, tracks) {
       uris: track_uris,
     })
 });
+
 if (!response.ok){
   throw new Error(`Failed to add tracks to playlist: ${response.statusText}`);
 }
@@ -581,15 +583,6 @@ if (!response.ok){
   return data;
 }
 
-// Example usage:
-//const accessToken = 'YOUR_SPOTIFY_ACCESS_TOKEN';  //? currentToken.access_token
-//const genre = 'pop'; // The genre you want to search
-//const yearFrom = '2000'; // Starting year of range
-//const yearTo = '2010'; // Ending year of range
-//const minDanceability = '0.5'; // Minimum danceability
-//const minEnergyLevel = '0.3'; // Minimum energy
-//const limit = 50; // Number of tracks to fetch
-//const _createPlaylist = false; // If a playlist is created
 const random = true; // Random songs or the same ones as before TODO: move to a more sensible place
 
 export async function search(params) {

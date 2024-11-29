@@ -31,12 +31,15 @@ function AudioPlayer({ previewUrl, onPlay }) {
 function SearchResults({ searchResults }) {
   const [results, setResults] = useState(searchResults); // Local copy of searchResults, this is modified
   const [currentlyPlaying, setCurrentlyPlaying] = useState(null); // When playing a preview
-  const [isCreating, setIsCreating] = useState(false); // Whether the playlist is being created
+  const [isSaving, setIsSaving] = useState(false); // Whether the playlist is being saved
   const [namePlaylist, setNamePlaylist] = useState('') // Name for the playlist
+  const [playlistUrl, setPlaylistUrl] = useState(null); // Url for the saved playlist
 
-  // When removing a song
+  // When new results are generated or removing a song
   useEffect(() => {
     setResults(searchResults);
+    setNamePlaylist('');
+    setPlaylistUrl(null);
   }, [searchResults]);
 
   const handlePlay = (audioElement) => {
@@ -47,28 +50,32 @@ function SearchResults({ searchResults }) {
     setCurrentlyPlaying(audioElement);
   }
 
-  // Creating a playlist with the tracks
-  const handleCreatePlaylist = async (e) => {
+  // Save the playlist with the tracks
+  const handleSavePlaylist = async (e) => {
     e.preventDefault();
-    // An example of doing something when the playlist is being created and when it finishes
-    setIsCreating(true);
+    // An example of doing something when the playlist is being saved and when it finishes
+    setIsSaving(true);
     // Get the link and show it somewhere on the page?
     const url = await makePlaylist(results, namePlaylist);
+    setPlaylistUrl(url);
     console.log("%cURL: " + url, "color:green;");
-    setIsCreating(false);
+    setIsSaving(false);
   }
 
   // Removing a song
   const removeSong = (index) => {
-    console.log("REMOVE", index);
+    //console.log("REMOVE", index);
     // Only needs the index i, hence the _ (ignoring the actual element)
     const updated = results.filter((_, i) => i !== index);
     setResults(updated);
   }
 
   return (
-    <div className="pt-8">
-      {results && results.length > 0 ? (
+    <div className='pt-8'>
+      {!results && (null)}
+      {results && results.length === 0 &&
+        <p>Found no elements that match the filters!</p>}
+      {results && results.length > 0 && (
         <div>
           {/* Search Results Container */}
           <div className="relative min-w-[700px] max-w-[min(900px,60%)] h-auto mx-auto bg-[#272b36] py-8">
@@ -84,13 +91,24 @@ function SearchResults({ searchResults }) {
               />
             </label>
             <button
-              className={`font-semibold rounded transition duration-300
-                ${isCreating ? 'bg-gray-400 text-gray-200 cursor-not-allowed' : 'bg-blue-500 text-white hover:bg-blue-600'}`}
-              onClick={handleCreatePlaylist}
-              disabled={isCreating}
+            className={`font-semibold rounded transition duration-300
+                ${isSaving ? 'bg-gray-400 text-gray-200 cursor-not-allowed' : 'bg-blue-500 text-white hover:bg-blue-600'}`}
+              onClick={handleSavePlaylist}
+              disabled={isSaving}
             >
-              {isCreating ? 'Saving...' : 'Save to Spotify'}
-            </button>
+              {/* Changing text */}
+              {isSaving ? 'Saving...' : 'Save to Spotify'}
+           </button>
+   
+            {/* Link to the playlist */}
+            {playlistUrl && 
+            <label className='absolute top-20 right-8 mt-3 py-2 flex font-bold'>
+              <a href={playlistUrl}>
+                Saved playlist
+              </a>
+            </label>
+            }
+   
             </div>
             <h2 className="text-4xl font-bold mt-2">Search Results:</h2>
             {/* Scrollable Results */}
@@ -126,7 +144,7 @@ function SearchResults({ searchResults }) {
             </div>
           </div>
         </div>
-      ) : null}
+      )}
     </div>
   );
 }
