@@ -67,13 +67,13 @@ function SearchForm({ setSearchResults }) {
             {/* Contains fields */}
             <fieldset className=' w-[50%] m-[0_auto] grid grid-cols-[0.75fr_1fr] gap-3'>
 
-              {/* Type chooser */}
+              {/* Type chooser - delete? */}
               <label htmlFor='type' className='text-right'>Type: </label>
               <select
                 id='type'
                 value={type}
                 onChange={(e) => setType(e.target.value)}
-                className='w-1/2 min-w-[10em]'
+                className='w-[15em]'
               >
                 <option value="track">Track</option>
               </select>
@@ -86,7 +86,7 @@ function SearchForm({ setSearchResults }) {
                 id="genre"
                 value={genre}
                 onChange={(e) => setGenre(e.target.value)}
-                className="w-1/2 min-w-[10em]"
+                className="w-[15em]"
               />
               <datalist id="genre-options">
                 {filteredGenres.map((g) => (
@@ -141,7 +141,7 @@ function SearchForm({ setSearchResults }) {
                   // Remove all non-numbers
                   e.target.value = e.target.value.replace(/[^0-9]/g, "");
                 }}
-                className='w-1/2'
+                className='w-[15em]'
               />
             </fieldset>
             <br />
@@ -151,7 +151,7 @@ function SearchForm({ setSearchResults }) {
               disabled={isSearching}
               type="submit"
               >
-              {isSearching ? 'Generating...' : 'Generate'}
+              {isSearching ? 'Generating...' : 'Generate playlist'}
             </button>
         </form>
     )

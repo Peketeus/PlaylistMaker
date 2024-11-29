@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { Routes, Route, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import SearchResults from './components/SearchResults';
 import SearchForm from './components/SearchForm'
+import PrivacyPolicy from "./components/PrivacyPolicy";
 import './App.css';
 import { getToken, currentToken, getUserData, loginWithSpotifyClick, logoutClick } from './service';
 import SpotifyLogo from './assets/Primary_Logo_White_CMYK.svg';
@@ -34,7 +35,7 @@ function App() {
         // Get user data after login
         getUserData().then((data) => setUserData(data));
       });
-    } 
+    }
 
     // If we already have a token, fetch the user data
     if (currentToken.access_token || localStorage.getItem('access_token')) {
@@ -48,6 +49,7 @@ function App() {
   return (
     <div className="App">
       <h1>PlaylistMaker</h1>
+      <PrivacyPolicy />
 
       {!isLoggedIn ? (
         <div className='absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 m-0 p-0'>
@@ -61,13 +63,19 @@ function App() {
           <h2>Welcome, {userData?.display_name}</h2>
           <img className='m-[0_auto] max-w-[6%] max-h-[auto] mb-4' src={userData?.images?.[0]?.url} />
 
-          <SearchForm setSearchResults={setSearchResults} />
-
-          <div>
-            <SearchResults searchResults={searchResults} />
-            <div className='mt-8'>
-              <button onClick={logoutClick}>Log Out</button>
+          {/* Render the SearchForm without any CSS if no search results */}
+          {searchResults.length === 0 ? (
+            <SearchForm setSearchResults={setSearchResults} />
+          ) : (
+            // Render both SearchForm and SearchResults with layout if results exist
+            <div className="flex flex-row items-center content-center justify-center pl-64">
+              <SearchForm setSearchResults={setSearchResults} />
+              <SearchResults searchResults={searchResults} />
             </div>
+          )}
+
+          <div className='mt-8'>
+            <button onClick={logoutClick}>Log Out</button>
           </div>
         </div>
       )}

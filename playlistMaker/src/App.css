@@ -66,8 +66,8 @@ body {
 
 .spotify-watermark {
   position: absolute;
+  top: 1rem;
   right: 1rem;
-  bottom: 1rem;
   margin-top: auto;
   font-family: circular-black;
 }
