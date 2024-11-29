@@ -144,7 +144,7 @@ function SearchResults({ searchResults }) {
             </div>
           </div>
         </div>
-      ) : null}
+      )}
     </div>
   );
 }
