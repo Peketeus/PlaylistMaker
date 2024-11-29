@@ -11,7 +11,7 @@ function SearchForm({ setSearchResults }) {
     const [yearFrom, setYearFrom] = useState('')
     const [yearTo, setYearTo] = useState('')
     const [minDanceability, setMinDanceability] = useState("0")
-    const [minEnergyLevel, setMinEnergyLevel] = useState("0")
+    const [minEnergy, setMinEnergy] = useState("0")
     const [minAcousticness, setMinAcousticness] = useState("0")
     const [minInstrumentalness, setMinInstrumentalness] = useState("0")
     //const [minLiveness, setmMinLiveness] = useState("0")
@@ -45,7 +45,7 @@ function SearchForm({ setSearchResults }) {
             'yearTo': yearTo,
             'filters': {
               'minDanceability': minDanceability,
-              'minEnergyLevel': minEnergyLevel,
+              'minEnergy': minEnergy,
               'minAcousticness': minAcousticness,
               'minInstrumentalness': minInstrumentalness,
               //'minLiveness': minLiveness,
@@ -101,8 +101,8 @@ function SearchForm({ setSearchResults }) {
               <label htmlFor='yearTo' className='text-right'>To (year): </label><InputField name="yearTo" inputValue={yearTo} setInputValue={setYearTo} />
               <label htmlFor='minDanceability' className='text-right'>Danceability: </label>
                 <Slider name="minDanceability" inputValue={minDanceability} setInputValue={setMinDanceability} min="0" max="1" step="0.001"/>
-              <label htmlFor='minEnergyLevel' className='text-right'>EnergyLevel: </label>
-                <Slider name="minEnergyLevel" inputValue={minEnergyLevel} setInputValue={setMinEnergyLevel} min="0" max="1" step="0.001"/>
+              <label htmlFor='minEnergy' className='text-right'>Energy: </label>
+                <Slider name="minEnergy" inputValue={minEnergy} setInputValue={setMinEnergy} min="0" max="1" step="0.001"/>
               <label htmlFor='minAcousticness' className='text-right'>Acousticness: </label>
                 <Slider name="minAcousticness" inputValue={minAcousticness} setInputValue={setMinAcousticness} min="0" max="1" step="0.001"/>
               <label htmlFor='minInstrumentalness' className='text-right'>Instrumentalness: </label>
