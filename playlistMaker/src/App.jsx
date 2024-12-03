@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import HeaderBar from './components/HeaderBar';
 import SearchResults from './components/SearchResults';
 import SearchForm from './components/SearchForm'
 import PrivacyPolicy from "./components/PrivacyPolicy";
 import './App.css';
 import { getToken, currentToken, getUserData, loginWithSpotifyClick, logoutClick } from './service';
-import SpotifyLogo from './assets/Primary_Logo_White_CMYK.svg';
 
 function App() {
   const [userData, setUserData] = useState(null);
@@ -48,6 +48,7 @@ function App() {
 
   return (
     <div className="App">
+      <HeaderBar isLoggedIn={isLoggedIn} />
       <h1>PlaylistMaker</h1>
       <PrivacyPolicy />
 
@@ -77,14 +78,8 @@ function App() {
                 </div>
               )
             }
-          <div className='mt-8'>
-            <button onClick={logoutClick}>Log Out</button>
-          </div>
         </div>
       )}
-      <div className='spotify-watermark'>
-        <p>Powered by</p><img src={SpotifyLogo} alt='Spotify' /> {/* TODO: make mobile/small screen friendly */}
-      </div>
     </div>
   );
 }
