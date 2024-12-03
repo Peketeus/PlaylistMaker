@@ -441,7 +441,6 @@ async function searchAndFilter(sanitized, accessToken) {
     console.log("%cFOUND NO TRACKS --- RETURNING []", "color:red;");
     return [];
   }
-  return tracks;
 
   // Step 4: Fetch audio features and convert them to a more appropriate format
   const trackIds = tracks.map(track => track.id);

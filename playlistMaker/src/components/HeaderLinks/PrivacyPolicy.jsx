@@ -1,5 +1,5 @@
 import React, { useState } from "react"
-import "./PrivacyPolicy.css"
+import "./HeaderLink.css"
 
 const PrivacyPolicy = () => {
     const [isOpen, setIsOpen] = useState(false);
@@ -12,7 +12,7 @@ const PrivacyPolicy = () => {
     return (
       <div>
         {/* Clickable link */}
-        <p className="privacy-link" onClick={toggleModal}>
+        <p className="header-link" onClick={toggleModal}>
           Privacy Policy
         </p>
   

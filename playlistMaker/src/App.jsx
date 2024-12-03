@@ -2,8 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import HeaderBar from './components/HeaderBar';
 import SearchResults from './components/SearchResults';
-import SearchForm from './components/SearchForm'
-import PrivacyPolicy from "./components/PrivacyPolicy";
+import SearchForm from './components/SearchForm';
 import './App.css';
 import { getToken, currentToken, getUserData, loginWithSpotifyClick, logoutClick } from './service';
 
@@ -50,7 +49,6 @@ function App() {
     <div className="App">
       <HeaderBar isLoggedIn={isLoggedIn} />
       <h1>PlaylistMaker</h1>
-      <PrivacyPolicy />
 
       {!isLoggedIn ? (
         <div className='absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 m-0 p-0'>
