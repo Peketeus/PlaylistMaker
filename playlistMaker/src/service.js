@@ -1,52 +1,67 @@
-const clientId = import.meta.env.VITE_API_CLIENT_ID;  // Comes from .env file that has to be in root folder
-const redirectUrl = 'http://localhost:5173/';  // Make sure this matches your Spotify redirect URL
+const clientId = import.meta.env.VITE_API_CLIENT_ID; // Comes from .env file that has to be in root folder
+const redirectUrl = "http://localhost:5173/"; // Make sure this matches your Spotify redirect URL
 
 const authorizationEndpoint = "https://accounts.spotify.com/authorize";
 const tokenEndpoint = "https://accounts.spotify.com/api/token";
-const scope = 'user-read-private user-read-email playlist-modify-public playlist-modify-private';
+const scope =
+  "user-read-private user-read-email playlist-modify-public playlist-modify-private";
 
 // Data structure to manage the active token
 export const currentToken = {
-  get access_token() { return localStorage.getItem('access_token') || null; },
-  get refresh_token() { return localStorage.getItem('refresh_token') || null; },
-  get expires_in() { return localStorage.getItem('expires_in') || null; },
-  get expires() { return localStorage.getItem('expires') || null; },
+  get access_token() {
+    return localStorage.getItem("access_token") || null;
+  },
+  get refresh_token() {
+    return localStorage.getItem("refresh_token") || null;
+  },
+  get expires_in() {
+    return localStorage.getItem("expires_in") || null;
+  },
+  get expires() {
+    return localStorage.getItem("expires") || null;
+  },
 
   save: function (response) {
     const { access_token, refresh_token, expires_in } = response;
-    localStorage.setItem('access_token', access_token);
-    localStorage.setItem('refresh_token', refresh_token);
-    localStorage.setItem('expires_in', expires_in);
+    localStorage.setItem("access_token", access_token);
+    localStorage.setItem("refresh_token", refresh_token);
+    localStorage.setItem("expires_in", expires_in);
 
     const now = new Date();
-    const expiry = new Date(now.getTime() + (expires_in * 1000));
-    localStorage.setItem('expires', expiry);
-  }
+    const expiry = new Date(now.getTime() + expires_in * 1000);
+    localStorage.setItem("expires", expiry);
+  },
 };
 
 // Function to handle the Spotify login redirect
 export async function redirectToSpotifyAuthorize() {
-  const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  const possible =
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
   const randomValues = crypto.getRandomValues(new Uint8Array(64));
-  const randomString = randomValues.reduce((acc, x) => acc + possible[x % possible.length], "");
+  const randomString = randomValues.reduce(
+    (acc, x) => acc + possible[x % possible.length],
+    ""
+  );
 
   const code_verifier = randomString;
   const data = new TextEncoder().encode(code_verifier);
-  const hashed = await crypto.subtle.digest('SHA-256', data);
+  const hashed = await crypto.subtle.digest("SHA-256", data);
 
-  const code_challenge_base64 = btoa(String.fromCharCode(...new Uint8Array(hashed)))
-    .replace(/=/g, '')
-    .replace(/\+/g, '-')
-    .replace(/\//g, '_');
+  const code_challenge_base64 = btoa(
+    String.fromCharCode(...new Uint8Array(hashed))
+  )
+    .replace(/=/g, "")
+    .replace(/\+/g, "-")
+    .replace(/\//g, "_");
 
-  window.localStorage.setItem('code_verifier', code_verifier);
+  window.localStorage.setItem("code_verifier", code_verifier);
 
   const authUrl = new URL(authorizationEndpoint);
   const params = {
-    response_type: 'code',
+    response_type: "code",
     client_id: clientId,
     scope: scope,
-    code_challenge_method: 'S256',
+    code_challenge_method: "S256",
     code_challenge: code_challenge_base64,
     redirect_uri: redirectUrl,
   };
@@ -57,25 +72,25 @@ export async function redirectToSpotifyAuthorize() {
 
 // Function to get the access token from Spotify after authorization
 export async function getToken(code) {
-  const code_verifier = localStorage.getItem('code_verifier');
+  const code_verifier = localStorage.getItem("code_verifier");
 
-  console.log('Code verifier: ', code_verifier)
+  console.log("Code verifier: ", code_verifier);
 
   const response = await fetch(tokenEndpoint, {
-    method: 'POST',
+    method: "POST",
     headers: {
-      'Content-Type': 'application/x-www-form-urlencoded',
+      "Content-Type": "application/x-www-form-urlencoded",
     },
     body: new URLSearchParams({
       client_id: clientId,
-      grant_type: 'authorization_code',
+      grant_type: "authorization_code",
       code: code,
       redirect_uri: redirectUrl,
       code_verifier: code_verifier,
     }),
   });
 
-  console.log(response)
+  console.log(response);
 
   return await response.json();
 }
@@ -83,13 +98,13 @@ export async function getToken(code) {
 // Function to refresh the token using the refresh token // TODO: katotaan jos yhdistetään tuohon isTokenExpired functioon ja jätettäis kaikki yhden alle.
 export async function refreshToken() {
   const response = await fetch(tokenEndpoint, {
-    method: 'POST',
+    method: "POST",
     headers: {
-      'Content-Type': 'application/x-www-form-urlencoded',
+      "Content-Type": "application/x-www-form-urlencoded",
     },
     body: new URLSearchParams({
       client_id: clientId,
-      grant_type: 'refresh_token',
+      grant_type: "refresh_token",
       refresh_token: currentToken.refresh_token,
     }),
   });
@@ -106,8 +121,8 @@ function isTokenExpired() {
     return true;
   }
   const expiresAt = new Date(expiresAtString);
-  const currentTime = new Date(); 
-  if (currentTime > expiresAt){
+  const currentTime = new Date();
+  if (currentTime > expiresAt) {
     // const token = await refreshToken();
     // currentToken.save(token);
     return true;
@@ -118,8 +133,8 @@ function isTokenExpired() {
 // Function to get the current user's data
 export async function getUserData() {
   const response = await fetch("https://api.spotify.com/v1/me", {
-    method: 'GET',
-    headers: { 'Authorization': 'Bearer ' + currentToken.access_token },
+    method: "GET",
+    headers: { Authorization: "Bearer " + currentToken.access_token },
   });
 
   return await response.json();
@@ -144,22 +159,21 @@ export async function refreshTokenClick() {
 }
 
 //-------------------------------------------------------------------------------------------
-// Laitetaan meidän omat funktiot tästä alas, niin ei mene tuohon authorization 
+// Laitetaan meidän omat funktiot tästä alas, niin ei mene tuohon authorization
 // koodin sekaan meidän omaa turhan paljon.
 // ***POISTETAAN TÄMÄ KOMMENTTI LOPUSSA***
 //-------------------------------------------------------------------------------------------
 
 // TODO: delete?
 export async function apiCallClick(params) {
-  console.log("API call with parameters: ", params)
-
+  console.log("API call with parameters: ", params);
 
   // Search for a single song with song ID (params)
-  const endpoint = "https://api.spotify.com/v1/tracks/".concat(params)
+  const endpoint = "https://api.spotify.com/v1/tracks/".concat(params);
 
-  const track = await apiCall(endpoint)
-  
-  console.log(track)
+  const track = await apiCall(endpoint);
+
+  console.log(track);
 
   return track;
 }
@@ -168,8 +182,8 @@ export async function apiCallClick(params) {
 export async function apiCall(params) {
   if (isTokenExpired()) refreshTokenClick();
   const response = await fetch(params, {
-    method: 'GET',
-    headers: { 'Authorization': 'Bearer ' + currentToken.access_token },
+    method: "GET",
+    headers: { Authorization: "Bearer " + currentToken.access_token },
   });
 
   return await response.json();
@@ -177,48 +191,53 @@ export async function apiCall(params) {
 
 // Function to search for tracks based on genre and year range
 async function searchTracksByCriteria(url, accessToken) {
-  console.log('FETCHING URL:', url);
+  console.log("FETCHING URL:", url);
   const response = await fetch(url, {
-      method: 'GET',
-      headers: {
-          Authorization: `Bearer ${accessToken}`,
-          'Content-Type': 'application/json'
-      }
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      "Content-Type": "application/json",
+    },
   });
 
   if (response.ok) {
-      const data = await response.json();
-      // Extract tracks
-      const tracks = data.tracks.items;
-      return tracks;
+    const data = await response.json();
+    // Extract tracks
+    const tracks = data.tracks.items;
+    return tracks;
   } else {
-      console.error('Error searching tracks by criteria:', response.status, response.statusText);
-      return [];
+    console.error(
+      "Error searching tracks by criteria:",
+      response.status,
+      response.statusText
+    );
+    return [];
   }
 }
 
 /**
  * Filters tracks by given filters
- * @param {Array} tracks 
- * @param {Object} audio_features 
- * @param {Object} filters 
- * @returns 
+ * @param {Array} tracks
+ * @param {Object} audio_features
+ * @param {Object} filters
+ * @returns
  */
 function filterTracksByFilters(tracks, audio_features, filters) {
   //console.log("FILTERS:", filters);
-  return tracks.filter(track => {
+  return tracks.filter((track) => {
     const feature = audio_features[track.id];
     if (feature) {
       return (
-      audio_features[track.id].danceability >= filters.minDanceability &&
-      audio_features[track.id].energy >= filters.minEnergy &&
-      audio_features[track.id].acousticness >= filters.minAcousticness &&
-      audio_features[track.id].instrumentalness >= filters.minInstrumentalness &&
-      //audio_features[track.id].liveness >= filters.minLiveness &&
-      //audio_features[track.id].loudness >= filters.minLoudness &&
-      audio_features[track.id].speechiness >= filters.minSpeechiness &&
-      audio_features[track.id].tempo >= filters.minTempo &&
-      audio_features[track.id].valence >= filters.minValence
+        audio_features[track.id].danceability >= filters.minDanceability &&
+        audio_features[track.id].energy >= filters.minEnergy &&
+        audio_features[track.id].acousticness >= filters.minAcousticness &&
+        audio_features[track.id].instrumentalness >=
+          filters.minInstrumentalness &&
+        //audio_features[track.id].liveness >= filters.minLiveness &&
+        //audio_features[track.id].loudness >= filters.minLoudness &&
+        audio_features[track.id].speechiness >= filters.minSpeechiness &&
+        audio_features[track.id].tempo >= filters.minTempo &&
+        audio_features[track.id].valence >= filters.minValence
       );
     }
     // Here is whether to include a track that has no matching audio feature
@@ -233,21 +252,26 @@ async function fetchAudioFeatures(trackIds, accessToken) {
     return [];
   }
 
-  const url = `https://api.spotify.com/v1/audio-features?ids=${trackIds.join(',')}`;
+  const url = `https://api.spotify.com/v1/audio-features?ids=${trackIds.join(
+    ","
+  )}`;
   const response = await fetch(url, {
-      method: 'GET',
-      headers: {
-          Authorization: `Bearer ${accessToken}`,
-          'Content-Type': 'application/json'
-      }
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      "Content-Type": "application/json",
+    },
   });
 
   if (response.ok) {
     const data = await response.json();
     return data.audio_features;
-  } 
-  else {
-    console.error('Error fetching audio features:', response.status, response.statusText);
+  } else {
+    console.error(
+      "Error fetching audio features:",
+      response.status,
+      response.statusText
+    );
     return [];
   }
 }
@@ -285,21 +309,49 @@ function constructURL(params, offset) {
     yearTo: sanitizeFilter(params.yearTo, parseInt, defaults.yearTo),
     limit: sanitizeFilter(params.limit, parseInt, defaults.limit),
     filters: {
-      minDanceability: sanitizeFilter('minDanceability', parseFloat, defaults.filters.minDanceability),
-      minEnergy: sanitizeFilter('minEnergy', parseFloat, defaults.filters.minEnergy),
-      minAcousticness: sanitizeFilter('minAcousticness', parseFloat, defaults.filters.minAcousticness),
-      minInstrumentalness: sanitizeFilter('minInstrumentalness', parseFloat, defaults.filters.minInstrumentalness),
+      minDanceability: sanitizeFilter(
+        "minDanceability",
+        parseFloat,
+        defaults.filters.minDanceability
+      ),
+      minEnergy: sanitizeFilter(
+        "minEnergy",
+        parseFloat,
+        defaults.filters.minEnergy
+      ),
+      minAcousticness: sanitizeFilter(
+        "minAcousticness",
+        parseFloat,
+        defaults.filters.minAcousticness
+      ),
+      minInstrumentalness: sanitizeFilter(
+        "minInstrumentalness",
+        parseFloat,
+        defaults.filters.minInstrumentalness
+      ),
       //minLiveness: sanitizeFilter('minLiveness', parseFloat, defaults.filters.minLiveness),
       //minLoudness: sanitizeFilter('minLoudness', parseFloat, defaults.filters.minLoudness),
-      minSpeechiness: sanitizeFilter('minSpeechiness', parseFloat, defaults.filters.minSpeechiness),
-      minTempo: sanitizeFilter('minTempo', parseFloat, defaults.filters.minTempo),
-      minValence: sanitizeFilter('minValence', parseFloat, defaults.filters.minValence),
+      minSpeechiness: sanitizeFilter(
+        "minSpeechiness",
+        parseFloat,
+        defaults.filters.minSpeechiness
+      ),
+      minTempo: sanitizeFilter(
+        "minTempo",
+        parseFloat,
+        defaults.filters.minTempo
+      ),
+      minValence: sanitizeFilter(
+        "minValence",
+        parseFloat,
+        defaults.filters.minValence
+      ),
     },
   };
 
   // Currently per api call
   const sanitizedLimit = sanitizeFilter(params.limit, parseInt, defaults.limit);
-  let queryParams = '';
+  let queryParams = "";
   // Conditionally add parameters to query
   if (sanitizedInputs.genre) {
     queryParams += `genre=${sanitizedInputs.genre}&`;
@@ -311,22 +363,22 @@ function constructURL(params, offset) {
   // Remove trailing & if exists
   queryParams = queryParams.substring(0, queryParams.length - 1);
   if (queryParams.length !== 0) {
-    queryParams += '&';
+    queryParams += "&";
   }
-  queryParams += 'type=track';
+  queryParams += "type=track";
   const url = `https://api.spotify.com/v1/search?q=${queryParams}&limit=${sanitizedLimit}&offset=${offset}`;
   return {
-    'url': url,
-    'filters': sanitizedInputs.filters,
-  };;
+    url: url,
+    filters: sanitizedInputs.filters,
+  };
 }
 
 /**
  * Sanitizer the given filter with the given parser
- * @param {String} filter 
- * @param {Function} parser 
- * @param {Number} _default 
- * @returns 
+ * @param {String} filter
+ * @param {Function} parser
+ * @param {Number} _default
+ * @returns
  */
 function sanitizeFilter(filter, parser, _default) {
   return filter ? parser(filter.trim()) : _default;
@@ -354,10 +406,10 @@ async function getTracksByCriteria(params) {
     const min = 550;
     const max = 950;
     // Limits to [min, max]
-    randomOffset = Math.floor(Math.random() * (max - min) + min)
+    randomOffset = Math.floor(Math.random() * (max - min) + min);
     //console.log(randomOffset);
   }
-  
+
   // Searching tracks in a loop and lowering randomOffset on each search
   // Max number of searches at total
   const maxSearches = 10;
@@ -371,8 +423,8 @@ async function getTracksByCriteria(params) {
   const found_tracks = [];
   const limit = params.limit ? parseInt(params.limit) : 50;
   while (
-    currentSearches < maxSearches && 
-    searchesNoTracks < maxSearchesNoTracks && 
+    currentSearches < maxSearches &&
+    searchesNoTracks < maxSearchesNoTracks &&
     found_tracks.length < limit
   ) {
     // Step 2: Sanitize inputs and construct url as well as filters
@@ -381,7 +433,7 @@ async function getTracksByCriteria(params) {
     const sanitized = constructURL(params, randomOffset);
     const tracks = await searchAndFilter(sanitized, accessToken);
     console.log("SEARCHES:", currentSearches, "TRACKS:", found_tracks.length);
-    
+
     // Add the tracks
     for (const track of tracks) {
       if (limit <= found_tracks.length) {
@@ -389,7 +441,7 @@ async function getTracksByCriteria(params) {
         return found_tracks;
       }
       // Check for duplicate
-      if (!found_tracks.some(found_track => found_track.id === track.id)) {
+      if (!found_tracks.some((found_track) => found_track.id === track.id)) {
         found_tracks.push(track);
       }
     }
@@ -408,15 +460,14 @@ async function getTracksByCriteria(params) {
         // PROBABLY DUE TO CHANGES IN THE SPOTIFY DATABASE DURING THE SEARCH?
         // SOLUTION? -> SUBTRACT SLIGTHLY MORE THAN LIMIT TO ACCOUNT FOR MINOR CHANGES
         // OR CHECKING FOR DUPLICATES AT THE END?
-        randomOffset -= (limit + 5);
+        randomOffset -= limit + 5;
       }
-    }
-    else {
+    } else {
       searchesNoTracks = 0;
       // This will stay like this
       if (randomOffset > limit + 5) {
         //randomOffset -= limit;
-        randomOffset -= (limit + 5);
+        randomOffset -= limit + 5;
       }
     }
     currentSearches++;
@@ -443,18 +494,25 @@ async function searchAndFilter(sanitized, accessToken) {
   }
 
   // Step 4: Fetch audio features and convert them to a more appropriate format
-  const trackIds = tracks.map(track => track.id);
+  const trackIds = tracks.map((track) => track.id);
   const audioFeatures = await fetchAudioFeatures(trackIds, accessToken);
   //console.log("AUDIO FEATURES:", audioFeatures);
   const featuresObj = featuresAsObj(audioFeatures);
   //console.log("FEATURES AS OBJ:", featuresObj);
 
   // Step 5: Filter tracks by all filters
-  const filteredTracks = filterTracksByFilters(tracks, featuresObj, sanitized.filters);
-  console.log('FILTERED TRACKS', filteredTracks);
+  const filteredTracks = filterTracksByFilters(
+    tracks,
+    featuresObj,
+    sanitized.filters
+  );
+  console.log("FILTERED TRACKS", filteredTracks);
 
   if (filteredTracks.length === 0) {
-    console.log("%cFILTERING PRODUCED 0 VALID TRACKS --- RETURNING []", "color:yellow;");
+    console.log(
+      "%cFILTERING PRODUCED 0 VALID TRACKS --- RETURNING []",
+      "color:yellow;"
+    );
     return [];
   }
 
@@ -463,7 +521,7 @@ async function searchAndFilter(sanitized, accessToken) {
 
 /**
  * Creates a playlist for the user with the selected tracks
- * @param {Array} filteredTracks 
+ * @param {Array} filteredTracks
  * @param {String} namePlaylist
  * @returns url to the playlist
  */
@@ -473,19 +531,27 @@ export async function makePlaylist(filteredTracks, namePlaylist) {
   // Constructing a date identifier for now
   const formattedDate = constructDateNow();
 
-  const name = namePlaylist.trim().length > 0 ? namePlaylist : "PlaylistMaker " + formattedDate;
+  const name =
+    namePlaylist.trim().length > 0
+      ? namePlaylist
+      : "PlaylistMaker " + formattedDate;
   // Other 2 parameters
   // Do we even want to let the user specify the description?
   const description = "Made using PlaylistMaker " + formattedDate;
   // The user being able to set this will probably be handy
   const _public = true;
 
-  const playlist = await createPlaylistSpotify(userData.id, name, description, _public);
+  const playlist = await createPlaylistSpotify(
+    userData.id,
+    name,
+    description,
+    _public
+  );
   console.log("CREATED PLAYLIST:", playlist);
   const url = playlist.external_urls.spotify;
   // Step 7: Add filtered tracks to the new playlist
   const playlist_snapshot = await addTracksToPlaylist(playlist, filteredTracks);
-  // Snapshot is a version identifier for the playlist. 
+  // Snapshot is a version identifier for the playlist.
   // A new one is generated every time the playlist is modified.
   // Useful when modifying playlists as it works as a guarantee
   // you are working with the latest version.
@@ -498,7 +564,7 @@ export async function makePlaylist(filteredTracks, namePlaylist) {
 
 /**
  * Constructs audiofeatures in an object format
- * @param {Array} audioFeatures 
+ * @param {Array} audioFeatures
  * @returns object -> track_id: feature
  */
 function featuresAsObj(audioFeatures) {
@@ -517,37 +583,37 @@ function featuresAsObj(audioFeatures) {
 function constructDateNow() {
   const now = new Date(Date.now());
   const year = now.getFullYear();
-  const month = String(now.getMonth() + 1).padStart(2, '0');
-  const day = String(now.getDate()).padStart(2, '0');
-  const hours = String(now.getHours()).padStart(2, '0');
-  const minutes = String(now.getMinutes()).padStart(2, '0');
-  const seconds = String(now.getSeconds()).padStart(2, '0');
+  const month = String(now.getMonth() + 1).padStart(2, "0");
+  const day = String(now.getDate()).padStart(2, "0");
+  const hours = String(now.getHours()).padStart(2, "0");
+  const minutes = String(now.getMinutes()).padStart(2, "0");
+  const seconds = String(now.getSeconds()).padStart(2, "0");
   return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
 }
 
 /**
  * Creates a playlist for the user on Spotify
- * @param {String} user_id 
- * @param {String} name 
- * @param {String} description 
- * @param {Boolean} _public 
+ * @param {String} user_id
+ * @param {String} name
+ * @param {String} description
+ * @param {Boolean} _public
  * @returns data
  */
 async function createPlaylistSpotify(user_id, name, description, _public) {
   const description_maxLength = 100;
   const url = `https://api.spotify.com/v1/users/${user_id}/playlists`;
   const response = await fetch(url, {
-    method: 'POST',
+    method: "POST",
     headers: {
-        Authorization: `Bearer ${currentToken.access_token}`,
-        'Content-Type': 'application/json',
+      Authorization: `Bearer ${currentToken.access_token}`,
+      "Content-Type": "application/json",
     },
-      body: JSON.stringify({
-        name: name,
-        description: description.substring(0, description_maxLength),
-        public: _public,
-      })
-    });
+    body: JSON.stringify({
+      name: name,
+      description: description.substring(0, description_maxLength),
+      public: _public,
+    }),
+  });
   if (!response.ok) {
     throw new Error(`Failed to create playlist: ${response.statusText}`);
   }
@@ -557,28 +623,31 @@ async function createPlaylistSpotify(user_id, name, description, _public) {
 
 /**
  * Adds tracks to the specified playlist
- * @param {Object} playlist 
- * @param {Array} tracks 
+ * @param {Object} playlist
+ * @param {Array} tracks
  * @returns data
  */
 async function addTracksToPlaylist(playlist, tracks) {
   // Correct format
-  const track_uris = tracks.map(track => `spotify:track:${track.id}`);
+  const track_uris = tracks.map((track) => `spotify:track:${track.id}`);
   //console.log("TRACK URIS:", track_uris);
-  const response = await fetch(`https://api.spotify.com/v1/playlists/${playlist.id}/tracks`, {
-    method: 'POST',
-    headers: {
+  const response = await fetch(
+    `https://api.spotify.com/v1/playlists/${playlist.id}/tracks`,
+    {
+      method: "POST",
+      headers: {
         Authorization: `Bearer ${currentToken.access_token}`,
-        'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      uris: track_uris,
-    })
-});
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        uris: track_uris,
+      }),
+    }
+  );
 
-if (!response.ok){
-  throw new Error(`Failed to add tracks to playlist: ${response.statusText}`);
-}
+  if (!response.ok) {
+    throw new Error(`Failed to add tracks to playlist: ${response.statusText}`);
+  }
   const data = await response.json();
   return data;
 }
@@ -587,4 +656,135 @@ const random = true; // Random songs or the same ones as before TODO: move to a 
 
 export async function search(params) {
   return getTracksByCriteria(params);
+}
+
+export async function apiCallSearch(yearFrom, yearTo, genre, limit) {
+  if (isTokenExpired()) await refreshTokenClick();
+  const baseURL = "https://api.spotify.com/v1/search";
+
+  const query = {
+    q: `genre:${genre} year:${yearFrom}-${yearTo}`,
+    type: "track", 
+    limit: limit,
+    offset: randomOffset(), 
+  };
+
+  const queryString = new URLSearchParams(query).toString();
+  console.log(queryString);
+
+  const url = `${baseURL}?${queryString}`;
+  const token = currentToken.access_token;
+
+  // The API request
+  const response = await fetch(url, {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+  });
+
+  if (response.ok) {
+    const data = await response.json();
+    console.log(data.tracks.items);
+    return data.tracks.items;
+  } else {
+    console.error(
+      "Error searching tracks by criteria:",
+      response.status,
+      response.statusText
+    );
+    return [];
+  }
+
+//?-------------------------------------------------------------------------
+
+  //   randomOffset = Math.floor(Math.random() * (max - min) + min);
+
+
+  // // Searching tracks in a loop and lowering randomOffset on each search
+  // // Max number of searches at total
+  // const maxSearches = 10;
+  // let currentSearches = 0;
+
+  // // If no tracks are found for 4 CONSECUTIVE searches -> break
+  // const maxSearchesNoTracks = 4;
+  // let searchesNoTracks = 0;
+
+  // // Found tracks and the limit
+  // const found_tracks = [];
+  // const limit = params.limit ? parseInt(params.limit) : 50;
+  // while (
+  //   currentSearches < maxSearches &&
+  //   searchesNoTracks < maxSearchesNoTracks &&
+  //   found_tracks.length < limit
+  // ) {
+  //   // Step 2: Sanitize inputs and construct url as well as filters
+  //   // TODO: refactoring so that sanitizing only happens once
+  //   // works fine as of now
+  //   const sanitized = constructURL(params, randomOffset);
+  //   const tracks = await searchAndFilter(sanitized, accessToken);
+  //   console.log("SEARCHES:", currentSearches, "TRACKS:", found_tracks.length);
+
+  //   // Add the tracks
+  //   for (const track of tracks) {
+  //     if (limit <= found_tracks.length) {
+  //       console.log("FINAL: ", found_tracks);
+  //       return found_tracks;
+  //     }
+  //     // Check for duplicate
+  //     if (!found_tracks.some((found_track) => found_track.id === track.id)) {
+  //       found_tracks.push(track);
+  //     }
+  //   }
+
+  //   // Adjust offset
+  //   // This needs optimizing! probably based on randomOffset min and max
+  //   if (tracks.length === 0) {
+  //     searchesNoTracks++;
+  //     // if (randomOffset > limit + 30)
+  //     // This will be modified most likely
+  //     //if (randomOffset > limit) {
+  //     if (randomOffset > limit + 5) {
+  //       //randomOffset = Math.round(randomOffset / 2);
+  //       //randomOffset -= limit;
+  //       // TODO: VERY RARE ERROR WHERE A SONG CAN BE FOUND TWICE
+  //       // PROBABLY DUE TO CHANGES IN THE SPOTIFY DATABASE DURING THE SEARCH?
+  //       // SOLUTION? -> SUBTRACT SLIGTHLY MORE THAN LIMIT TO ACCOUNT FOR MINOR CHANGES
+  //       // OR CHECKING FOR DUPLICATES AT THE END?
+  //       randomOffset -= limit + 5;
+  //     }
+  //   } else {
+  //     searchesNoTracks = 0;
+  //     // This will stay like this
+  //     if (randomOffset > limit + 5) {
+  //       //randomOffset -= limit;
+  //       randomOffset -= limit + 5;
+  //     }
+  //   }
+  //   currentSearches++;
+  // }
+
+  // console.log("FINAL: ", found_tracks);
+  // return found_tracks;
+
+
+
+
+
+
+
+
+
+}
+
+
+/**
+ *  TODO: HERE COME HERE HEREH FROM HERE
+ * @returns random number between min and max value
+ */
+function randomOffset(){  
+  const min = 0; 
+  const max = 100;
+ return Math.floor(Math.random() * (max - min) + min);
 }

@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { search } from '../service';
+import { apiCallSearch, search } from '../service';
 import InputField from './InputField';
 import Slider from './Slider';
 import Genres from '../resources/genres.json'
 
 function SearchForm({ setSearchResults }) {
     const [type, setType] = useState('track')
-    const [genre, setGenre] = useState('')
+    const [genre, setGenre] = useState('pop')
     const [filteredGenres, setFilteredGenres] = useState([])
     const [yearFrom, setYearFrom] = useState('')
     const [yearTo, setYearTo] = useState('')
@@ -38,25 +38,26 @@ function SearchForm({ setSearchResults }) {
     const handleSubmit = async (e) => {
         e.preventDefault()
         setIsSearching(true);
-        const tracks = await search(
-          {
-            'genre': genre,
-            'yearFrom': yearFrom,
-            'yearTo': yearTo,
-            'filters': {
-              'minDanceability': minDanceability,
-              'minEnergy': minEnergy,
-              'minAcousticness': minAcousticness,
-              'minInstrumentalness': minInstrumentalness,
-              //'minLiveness': minLiveness,
-              //'minLoudness': minLoudness,
-              'minSpeechiness': minSpeechiness,
-              'minTempo': minTempo,
-              'minValence': minValence,
-            },
-            'limit': limit,
-            }
-          );
+        const tracks = await apiCallSearch(yearFrom, yearTo, genre, limit);
+        // const tracks = await search(    // TODO: Spotify took off endpoints from the public API users so this code is now useless. POISTA
+        //   {
+        //     'genre': genre,
+        //     'yearFrom': yearFrom,
+        //     'yearTo': yearTo,
+        //     'filters': {
+        //       'minDanceability': minDanceability,
+        //       'minEnergy': minEnergy,
+        //       'minAcousticness': minAcousticness,
+        //       'minInstrumentalness': minInstrumentalness,
+        //       //'minLiveness': minLiveness,
+        //       //'minLoudness': minLoudness,
+        //       'minSpeechiness': minSpeechiness,
+        //       'minTempo': minTempo,
+        //       'minValence': minValence,
+        //     },
+        //     'limit': limit,
+        //     }
+        //   );
         setSearchResults(tracks);
         setIsSearching(false);
     }
