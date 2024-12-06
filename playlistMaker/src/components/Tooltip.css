@@ -1,8 +1,11 @@
 .tooltip {
-    position: relative;
-    display: inline-block;
-    border-bottom: 1px dotted rgb(31, 57, 204);
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    position: relative; 
+    cursor: pointer;
     color: aqua;
+    text-align: right;
   }
   
   .tooltip .tooltiptext {
