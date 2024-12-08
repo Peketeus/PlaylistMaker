@@ -71,7 +71,7 @@ function SearchResults({ searchResults }) {
   }
 
   return (
-    <div className='pt-8 min-w-[800px] max-w-[min(800px,50%)]'>
+    <div className='flex justify-center align-center pt-8'>
       {!results && (null)}
       {results && results.length === 0 &&
         <p>Found no elements that match the filters!</p>}
