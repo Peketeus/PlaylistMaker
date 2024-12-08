@@ -103,6 +103,14 @@ body {
     margin: 0.5rem 0;
   }
 
+  .form {
+    margin-left: 0;
+  }
+
+  .form-results {
+    flex-direction: column;
+  }
+
 }
 
 @media (prefers-reduced-motion: no-preference) {
