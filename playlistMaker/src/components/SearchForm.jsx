@@ -7,7 +7,7 @@ import Tooltip from './Tooltip';
 
 function SearchForm({ setSearchResults }) {
     const [type, setType] = useState('track')
-    const [genre, setGenre] = useState('pop')
+    const [genre, setGenre] = useState('')
     const [filteredGenres, setFilteredGenres] = useState([])
     const [yearFrom, setYearFrom] = useState('')
     const [yearTo, setYearTo] = useState('')
@@ -39,97 +39,78 @@ function SearchForm({ setSearchResults }) {
     const handleSubmit = async (e) => {
         e.preventDefault()
         setIsSearching(true);
-        // const tracks = await apiCallSearch(yearFrom, yearTo, genre, limit);
         const tracks = await fetchTracksUntilLimit(yearFrom, yearTo, genre, limit);
-        // const tracks = await search(    // TODO: Spotify took off endpoints from the public API users so this code is now useless. POISTA
-        //   {
-        //     'genre': genre,
-        //     'yearFrom': yearFrom,
-        //     'yearTo': yearTo,
-        //     'filters': {
-        //       'minDanceability': minDanceability,
-        //       'minEnergy': minEnergy,
-        //       'minAcousticness': minAcousticness,
-        //       'minInstrumentalness': minInstrumentalness,
-        //       //'minLiveness': minLiveness,
-        //       //'minLoudness': minLoudness,
-        //       'minSpeechiness': minSpeechiness,
-        //       'minTempo': minTempo,
-        //       'minValence': minValence,
-        //     },
-        //     'limit': limit,
-        //     }
-        //   );
         setSearchResults(tracks);
         setIsSearching(false);
     }
+  }, [genre]); // Do filtering each time the genre-variable changes
 
-    return (
-        <form onSubmit={handleSubmit}>
+  return (
+    <form className=' flex flex-col items-center justify-center gap-4' onSubmit={handleSubmit}>
 
-            {/* Contains fields */}
-            <fieldset className=' w-[20%] m-[0_auto] grid grid-cols-[0.75fr_1fr_0.1fr] gap-3'>
+      {/* Contains fields */}
+      <fieldset className='form w-[20%] grid grid-cols-[0.75fr_1fr_0.1fr] gap-3'>
 
-              {/* Type chooser - delete? */}
-              <label htmlFor='type' className='text-right'>Type: </label>
-              <select
-                id='type'
-                value={type}
-                onChange={(e) => setType(e.target.value)}
-                className='w-[15em]'
-              >
-                <option value="track">Track</option>
-              </select>
-              <Tooltip text="?" tooltipText="Generated type" />
+        {/* Type chooser - delete? */}
+        <label htmlFor='type' className='text-right'>Type: </label>
+        <select
+          id='type'
+          value={type}
+          onChange={(e) => setType(e.target.value)}
+          className='w-[15em]'
+        >
+          <option value="track">Track</option>
+        </select>
+        <Tooltip text="?" tooltipText="Generated type" />
 
-              {/* Search field for genre */}
-              <label htmlFor='genre' className='text-right'>Genre: </label>
-              <input
-                type="text"
-                list="genre-options"
-                id="genre"
-                value={genre}
-                onChange={(e) => setGenre(e.target.value)}
-                className="w-[15em]"
-              />
-              <datalist id="genre-options">
-                {filteredGenres.map((g) => (
-                  <option key={g.id} value={g.name} />
-                ))}
-              </datalist>
-              <Tooltip text="?" tooltipText="Select music genre"/>
+        {/* Search field for genre */}
+        <label htmlFor='genre' className='text-right'>Genre: </label>
+        <input
+          type="text"
+          list="genre-options"
+          id="genre"
+          value={genre}
+          onChange={(e) => setGenre(e.target.value)}
+          className="w-[15em]"
+        />
+        <datalist id="genre-options">
+          {filteredGenres.map((g) => (
+            <option key={g.id} value={g.name} />
+          ))}
+        </datalist>
+        <Tooltip text="?" tooltipText="Select music genre" />
 
-              {/* Other input fields */}
-              {/* SLIDER RANGE: 0 to 1.0 */}
-              {/* EXCEPT: minLoudness(~-60 to 0) minTempo(~50 to 250) */}
-              {/* From (year) */}
-              <label htmlFor='yearFrom' className='text-right'>From (year): </label><InputField name="yearFrom" inputValue={yearFrom} setInputValue={setYearFrom} />
-                <Tooltip text="?" tooltipText="Generate from year"/>
+        {/* Other input fields */}
+        {/* SLIDER RANGE: 0 to 1.0 */}
+        {/* EXCEPT: minLoudness(~-60 to 0) minTempo(~50 to 250) */}
+        {/* From (year) */}
+        <label htmlFor='yearFrom' className='text-right'>From (year): </label><InputField name="yearFrom" inputValue={yearFrom} setInputValue={setYearFrom} />
+        <Tooltip text="?" tooltipText="Generate from year" />
 
-              {/* To (year) */}
-              <label htmlFor='yearTo' className='text-right'>To (year): </label><InputField name="yearTo" inputValue={yearTo} setInputValue={setYearTo} />
-                <Tooltip text="?" tooltipText="Generate to year"/>
+        {/* To (year) */}
+        <label htmlFor='yearTo' className='text-right'>To (year): </label><InputField name="yearTo" inputValue={yearTo} setInputValue={setYearTo} />
+        <Tooltip text="?" tooltipText="Generate to year" />
 
-              {/* Danceability */}
-              <label htmlFor='minDanceability' className='text-right'>Danceability: </label>
-                <Slider name="minDanceability" inputValue={minDanceability} setInputValue={setMinDanceability} min="0" max="1" step="0.001"/>
-                <Tooltip text="?" tooltipText="Not in use"/>
+        {/* Danceability */}
+        <label htmlFor='minDanceability' className='text-right'>Danceability: </label>
+        <Slider name="minDanceability" inputValue={minDanceability} setInputValue={setMinDanceability} min="0" max="1" step="0.001" />
+        <Tooltip text="?" tooltipText="Not in use" />
 
-              {/* Energy */}
-              <label htmlFor='minEnergy' className='text-right'>Energy: </label>
-                <Slider name="minEnergy" inputValue={minEnergy} setInputValue={setMinEnergy} min="0" max="1" step="0.001"/>
-                <Tooltip text="?" tooltipText="Not in use"/>
+        {/* Energy */}
+        <label htmlFor='minEnergy' className='text-right'>Energy: </label>
+        <Slider name="minEnergy" inputValue={minEnergy} setInputValue={setMinEnergy} min="0" max="1" step="0.001" />
+        <Tooltip text="?" tooltipText="Not in use" />
 
-              {/* Acousticness */}
-              <label htmlFor='minAcousticness' className='text-right'>Acousticness: </label>
-                <Slider name="minAcousticness" inputValue={minAcousticness} setInputValue={setMinAcousticness} min="0" max="1" step="0.001"/>
-                <Tooltip text="?" tooltipText="Not in use"/>
+        {/* Acousticness */}
+        <label htmlFor='minAcousticness' className='text-right'>Acousticness: </label>
+        <Slider name="minAcousticness" inputValue={minAcousticness} setInputValue={setMinAcousticness} min="0" max="1" step="0.001" />
+        <Tooltip text="?" tooltipText="Not in use" />
 
-              {/* Instumentalness */}
-              <label htmlFor='minInstrumentalness' className='text-right'>Instrumentalness: </label>
-                <Slider name="minInstrumentalness" inputValue={minInstrumentalness} setInputValue={setMinInstrumentalness} min="0" max="1" step="0.001"/>
-                <Tooltip text="?" tooltipText="Not in use"/>
-              {/* 
+        {/* Instumentalness */}
+        <label htmlFor='minInstrumentalness' className='text-right'>Instrumentalness: </label>
+        <Slider name="minInstrumentalness" inputValue={minInstrumentalness} setInputValue={setMinInstrumentalness} min="0" max="1" step="0.001" />
+        <Tooltip text="?" tooltipText="Not in use" />
+        {/* 
               <label htmlFor='minLiveness' className='text-right'>minLiveness: </label>
                 <Slider name="minLiveness" inputValue={minLiveness} setInputValue={setmMinLiveness} min="0" max="1" step="0.001"/>
 
@@ -177,15 +158,15 @@ function SearchForm({ setSearchResults }) {
             </fieldset>
             <br />
             <button 
-              className= {`font-semibold rounded transition duration-300
-                ${isSearching ? 'bg-gray-400 text-gray-200 cursor-not-allowed' : 'bg-blue-500 text-white hover:bg-blue-600'}`}
-              disabled={isSearching}
-              type="submit"
-              >
-              {isSearching ? 'Generating...' : 'Generate playlist'}
-            </button>
-        </form>
-    )
+              className={`font-semibold rounded transition duration-300 w-[180px]
+                        ${isSearching ? 'bg-gray-400 text-gray-200 cursor-not-allowed' : 'bg-blue-500 text-white hover:bg-blue-600'}`}
+                disabled={isSearching}
+                type="submit"
+                >
+        {isSearching ? 'Generating...' : 'Generate playlist'}
+      </button>
+    </form>
+  )
 }
 
 export default SearchForm

@@ -71,15 +71,15 @@ function SearchResults({ searchResults }) {
   }
 
   return (
-    <div className='pt-8'>
+    <div className='flex justify-center align-center pt-8'>
       {!results && (null)}
       {results && results.length === 0 &&
         <p>Found no elements that match the filters!</p>}
       {results && results.length > 0 && (
-        <div>
-          {/* Search Results Container */}
-          <div className="relative min-w-[700px] max-w-[min(900px,60%)] h-auto mx-auto bg-[#272b36] py-8">
-            <div className="flex flex-col gap-4 items-end mr-4">
+
+        // Search results container
+        <div className="relative min-w-[700px] max-w-[min(700px,50%)] h-auto m-[0_auto] bg-[#272b36] py-8">
+          <div className="flex flex-col gap-4 items-end mr-4">
             <label>
               Playlist name:
               <input
@@ -91,57 +91,56 @@ function SearchResults({ searchResults }) {
               />
             </label>
             <button
-            className={`font-semibold rounded transition duration-300
+              className={`font-semibold rounded transition duration-300
                 ${isSaving ? 'bg-gray-400 text-gray-200 cursor-not-allowed' : 'bg-blue-500 text-white hover:bg-blue-600'}`}
               onClick={handleSavePlaylist}
               disabled={isSaving}
             >
               {/* Changing text */}
               {isSaving ? 'Saving...' : 'Save to Spotify'}
-           </button>
-   
+            </button>
+
             {/* Link to the playlist */}
-            {playlistUrl && 
-            <label className='absolute top-20 right-8 mt-3 py-2 flex font-bold'>
-              <a href={playlistUrl}>
-                Saved playlist
-              </a>
-            </label>
+            {playlistUrl &&
+              <label className='absolute top-20 right-8 mt-3 py-2 flex font-bold'>
+                <a href={playlistUrl}>
+                  Saved playlist
+                </a>
+              </label>
             }
-   
-            </div>
-            <h2 className="text-4xl font-bold mt-2">Search Results:</h2>
-            {/* Scrollable Results */}
-            <div
-              className="overflow-y-auto overflow-x-hidden mt-8 mx-4 p-4 border-[2px] border-solid border-black rounded-xl shadow-[0_0_5px_5px_rgba(15,15,15,0.7)]"
-              style={{
-                maxHeight: '60vh'
-              }}
-            >
-              {results.map((result, index) => (
-                <div key={result.id || index} className="flex justify-around items-center mb-4 mr-4">
-                  <div className="ml-4 flex-[0_0_2rem] text-center">{index + 1}</div>
-                  <a
-                    className="flex flex-[1_0_40%] max-w-[40%] gap-4 ml-8 mr-8 no-underline text-inherit hover:text-inherit"
-                    href={result.external_urls.spotify}
-                    target="_blank"
-                  >
-                    <img className="w-[64px] h-[64px]" src={result.album.images[2].url} alt="Album Art" />
-                    <div>
-                      <p className="resultSong">{result.name}</p>
-                      <p className="resultArtist">{result.artists[0].name}</p>
-                    </div>
-                  </a>
-                  <AudioPlayer previewUrl={result.preview_url} onPlay={handlePlay} />
-                  <button
-                    className="flex-[0_0_16px] p-0 border-0 bg-transparent"
-                    onClick={() => removeSong(index)}
-                  >
-                    <img src={removeicon} alt="Remove" />
-                  </button>
-                </div>
-              ))}
-            </div>
+
+          </div>
+          <h2 className="text-4xl font-bold mt-2">Search Results:</h2>
+          {/* Scrollable Results */}
+          <div
+            className="overflow-y-auto overflow-x-hidden mt-8 mx-4 p-4 border-[2px] border-solid border-black rounded-xl shadow-[0_0_5px_5px_rgba(15,15,15,0.7)]"
+            style={{
+              maxHeight: '60vh'
+            }}
+          >
+            {results.map((result, index) => (
+              <div key={result.id || index} className="flex justify-around items-center mb-4 mr-4">
+                <div className="ml-4 flex-[0_0_2rem] text-center">{index + 1}</div>
+                <a
+                  className="flex flex-[1_0_40%] max-w-[40%] gap-4 ml-8 mr-8 no-underline text-inherit hover:text-inherit"
+                  href={result.external_urls.spotify}
+                  target="_blank"
+                >
+                  <img className="w-[64px] h-[64px]" src={result.album.images[2].url} alt="Album Art" />
+                  <div>
+                    <p className="resultSong">{result.name}</p>
+                    <p className="resultArtist">{result.artists[0].name}</p>
+                  </div>
+                </a>
+                <AudioPlayer previewUrl={result.preview_url} onPlay={handlePlay} />
+                <button
+                  className="flex-[0_0_16px] p-0 border-0 bg-transparent"
+                  onClick={() => removeSong(index)}
+                >
+                  <img src={removeicon} alt="Remove" />
+                </button>
+              </div>
+            ))}
           </div>
         </div>
       )}

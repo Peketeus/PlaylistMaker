@@ -65,12 +65,12 @@ function App() {
               <SearchForm setSearchResults={setSearchResults} />
             // Subsequent renders
             ) : searchResults.length === 0 ? (
-                <div>
+                <div className='form-results'>
                   <SearchForm setSearchResults={setSearchResults} />
                   <SearchResults searchResults={searchResults} />
                 </div>
               ) : (
-                <div className="flex flex-row items-center content-center justify-center pl-64">
+                <div className="form-results flex flex-row items-center content-center justify-center">
                   <SearchForm setSearchResults={setSearchResults} />
                   <SearchResults searchResults={searchResults} />
                 </div>
