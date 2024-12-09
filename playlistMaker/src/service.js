@@ -658,15 +658,148 @@ export async function search(params) {
   return getTracksByCriteria(params);
 }
 
-export async function apiCallSearch(yearFrom, yearTo, genre, limit) {
+// export async function getTracks(yearFrom, yearTo, genre, limit){
+//   const maxSearches = 10;
+//   let currentSearches = 0;
+  
+//   // If no tracks are found for 4 CONSECUTIVE searches -> break
+//   const maxSearchesNoTracks = 4;
+//   let searchesNoTracks = 0;
+  
+//   // Found tracks and the limit
+//   const found_tracks = [];
+//   const limit = params.limit ? parseInt(params.limit) : 50;
+//   while (
+//       currentSearches < maxSearches &&
+//       searchesNoTracks < maxSearchesNoTracks &&
+//       found_tracks.length < limit
+//     ) {
+//         // Step 2: Sanitize inputs and construct url as well as filters
+//         // TODO: refactoring so that sanitizing only happens once
+//         // works fine as of now
+//         const sanitized = constructURL(params, randomOffset);
+//         const tracks = await searchAndFilter(sanitized, accessToken);
+//         console.log("SEARCHES:", currentSearches, "TRACKS:", found_tracks.length);
+      
+//         // Add the tracks
+//         for (const track of tracks) {
+//             if (limit <= found_tracks.length) {
+//                 console.log("FINAL: ", found_tracks);
+//                 return found_tracks;
+//               }
+//               // Check for duplicate
+//               if (!found_tracks.some((found_track) => found_track.id === track.id)) {
+//                   found_tracks.push(track);
+//                 }
+//               }
+            
+//               // Adjust offset
+//               // This needs optimizing! probably based on randomOffset min and max
+//               if (tracks.length === 0) {
+//                   searchesNoTracks++;
+//                   // if (randomOffset > limit + 30)
+//                   // This will be modified most likely
+//                   //if (randomOffset > limit) {
+//                     if (randomOffset > limit + 5) {
+//                         //randomOffset = Math.round(randomOffset / 2);
+//                         //randomOffset -= limit;
+//                         // TODO: VERY RARE ERROR WHERE A SONG CAN BE FOUND TWICE
+//                         // PROBABLY DUE TO CHANGES IN THE SPOTIFY DATABASE DURING THE SEARCH?
+//                         // SOLUTION? -> SUBTRACT SLIGTHLY MORE THAN LIMIT TO ACCOUNT FOR MINOR CHANGES
+//                         // OR CHECKING FOR DUPLICATES AT THE END?
+//                         randomOffset -= limit + 5;
+//                       }
+//                     } else {
+//                         searchesNoTracks = 0;
+//       // This will stay like this
+//       if (randomOffset > limit + 5) {
+//           //randomOffset -= limit;
+//           randomOffset -= limit + 5;
+//         }
+//       }
+//       currentSearches++;
+//     }
+    
+//     console.log("FINAL: ", found_tracks);
+//     return found_tracks;
+// }
+
+
+/**
+ * Fetches tracks by using parameters below until it can return limit amount of tracks.
+ * @param {Number} yearFrom 
+ * @param {Number} yearTo 
+ * @param {String} genre 
+ * @param {Number} limit 
+ * @returns Array of found tracks
+ */
+export async function fetchTracksUntilLimit(yearFrom, yearTo , genre , limit) {
+  let offset = 500; // Starting offset
+  let tracks = []; // Array to accumulate tracks
+  let maxFetch = 0;
+  if(!limit) limit = 50;
+  console.log(typeof(yearTo));
+  if(!yearFrom || isNaN(yearFrom)) yearFrom = 1990;
+  if(!yearTo || isNaN(yearTo)) yearTo = 2020;
+  if(yearTo < yearFrom) yearTo = yearFrom;
+  console.log("Year from " +yearFrom);  //TODO: OTETAAN POIS CONSOLET
+  console.log("Year To " + yearTo);
+  console.log("genre "+genre);
+  console.log("Limit "+limit);
+
+  while (offset >= 0 && tracks.length < limit) {
+    console.log(`Fetching with offset: ${offset}`);
+    if(offset < 0) break;
+    maxFetch++;
+    if (maxFetch > 10){ // The offset will go down to 0, the last fetch will happen and this will break the loop because there are no other tracks to look for.
+      console.log("No more tracks were found.");
+      break;
+    } 
+
+    // Call the apiCallSearch function
+    const fetchedTracks = await apiCallSearch(yearFrom, yearTo, genre, limit - tracks.length, offset);
+
+    for (const track of fetchedTracks) {
+      // Check if the track ID (or URI) is already in the Set
+      if (!tracks.some((found_track) => found_track.id === track.id)) {
+        tracks.push(track);
+      }
+    }
+    
+    
+    // If fewer tracks than requested are returned, reduce the offset
+    if (fetchedTracks.length < (limit - tracks.length)) {
+      if(0 < offset < 100){
+        offset = 0;
+        continue;
+      }else{
+        offset -= 100;
+      }
+    }  
+  }
+
+  console.log(`Total tracks fetched: ${tracks.length}`);
+  return tracks;
+}
+
+/**
+ * 
+ * @param {Number} yearFrom 
+ * @param {Number} yearTo 
+ * @param {String} genre 
+ * @param {Number} limit 
+ * @param {Number} offset 
+ * @returns Array of tracks
+ */
+export async function apiCallSearch(yearFrom, yearTo, genre, limit, offset) {
   if (isTokenExpired()) await refreshTokenClick();
   const baseURL = "https://api.spotify.com/v1/search";
 
   const query = {
     q: `genre:${genre} year:${yearFrom}-${yearTo}`,
-    type: "track", 
+    type: "track",  
     limit: limit,
-    offset: randomOffset(), 
+    offset: randomOffset(offset), 
   };
 
   const queryString = new URLSearchParams(query).toString();
@@ -695,96 +828,14 @@ export async function apiCallSearch(yearFrom, yearTo, genre, limit) {
       response.statusText
     );
     return [];
-  }
-
-//?-------------------------------------------------------------------------
-
-  //   randomOffset = Math.floor(Math.random() * (max - min) + min);
-
-
-  // // Searching tracks in a loop and lowering randomOffset on each search
-  // // Max number of searches at total
-  // const maxSearches = 10;
-  // let currentSearches = 0;
-
-  // // If no tracks are found for 4 CONSECUTIVE searches -> break
-  // const maxSearchesNoTracks = 4;
-  // let searchesNoTracks = 0;
-
-  // // Found tracks and the limit
-  // const found_tracks = [];
-  // const limit = params.limit ? parseInt(params.limit) : 50;
-  // while (
-  //   currentSearches < maxSearches &&
-  //   searchesNoTracks < maxSearchesNoTracks &&
-  //   found_tracks.length < limit
-  // ) {
-  //   // Step 2: Sanitize inputs and construct url as well as filters
-  //   // TODO: refactoring so that sanitizing only happens once
-  //   // works fine as of now
-  //   const sanitized = constructURL(params, randomOffset);
-  //   const tracks = await searchAndFilter(sanitized, accessToken);
-  //   console.log("SEARCHES:", currentSearches, "TRACKS:", found_tracks.length);
-
-  //   // Add the tracks
-  //   for (const track of tracks) {
-  //     if (limit <= found_tracks.length) {
-  //       console.log("FINAL: ", found_tracks);
-  //       return found_tracks;
-  //     }
-  //     // Check for duplicate
-  //     if (!found_tracks.some((found_track) => found_track.id === track.id)) {
-  //       found_tracks.push(track);
-  //     }
-  //   }
-
-  //   // Adjust offset
-  //   // This needs optimizing! probably based on randomOffset min and max
-  //   if (tracks.length === 0) {
-  //     searchesNoTracks++;
-  //     // if (randomOffset > limit + 30)
-  //     // This will be modified most likely
-  //     //if (randomOffset > limit) {
-  //     if (randomOffset > limit + 5) {
-  //       //randomOffset = Math.round(randomOffset / 2);
-  //       //randomOffset -= limit;
-  //       // TODO: VERY RARE ERROR WHERE A SONG CAN BE FOUND TWICE
-  //       // PROBABLY DUE TO CHANGES IN THE SPOTIFY DATABASE DURING THE SEARCH?
-  //       // SOLUTION? -> SUBTRACT SLIGTHLY MORE THAN LIMIT TO ACCOUNT FOR MINOR CHANGES
-  //       // OR CHECKING FOR DUPLICATES AT THE END?
-  //       randomOffset -= limit + 5;
-  //     }
-  //   } else {
-  //     searchesNoTracks = 0;
-  //     // This will stay like this
-  //     if (randomOffset > limit + 5) {
-  //       //randomOffset -= limit;
-  //       randomOffset -= limit + 5;
-  //     }
-  //   }
-  //   currentSearches++;
-  // }
-
-  // console.log("FINAL: ", found_tracks);
-  // return found_tracks;
-
-
-
-
-
-
-
-
-
+  }   
 }
-
+    
 
 /**
- *  TODO: HERE COME HERE HEREH FROM HERE
- * @returns random number between min and max value
+ *  TODO: PALAUTETAAN VAAN TUO MATHFLOOR HOMMA TAKASI, VÄHÄ TESTAILUA
+ * @returns random number between 0 and max
  */
-function randomOffset(){  
-  const min = 0; 
-  const max = 100;
- return Math.floor(Math.random() * (max - min) + min);
+function randomOffset(max){  
+  return Math.floor(Math.random() * max);
 }

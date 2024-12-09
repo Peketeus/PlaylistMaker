@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { apiCallSearch, search } from '../service';
+import { apiCallSearch, fetchTracksUntilLimit, search } from '../service';
 import InputField from './InputField';
 import Slider from './Slider';
 import Genres from '../resources/genres.json'
@@ -39,7 +39,8 @@ function SearchForm({ setSearchResults }) {
     const handleSubmit = async (e) => {
         e.preventDefault()
         setIsSearching(true);
-        const tracks = await apiCallSearch(yearFrom, yearTo, genre, limit);
+        // const tracks = await apiCallSearch(yearFrom, yearTo, genre, limit);
+        const tracks = await fetchTracksUntilLimit(yearFrom, yearTo, genre, limit);
         // const tracks = await search(    // TODO: Spotify took off endpoints from the public API users so this code is now useless. POISTA
         //   {
         //     'genre': genre,
@@ -150,7 +151,7 @@ function SearchForm({ setSearchResults }) {
                 <Tooltip text="?" tooltipText="Not in use"/>
               
               {/* Limit */}
-              <label htmlFor="limit" className='text-right'>Limit: </label>
+              <label htmlFor="limit" className='text-right'>Number of tracks: </label>
               <input
                 id="limit"
                 type="number"
