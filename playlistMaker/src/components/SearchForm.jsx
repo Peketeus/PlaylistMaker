@@ -3,6 +3,7 @@ import { apiCallSearch, search } from '../service';
 import InputField from './InputField';
 import Slider from './Slider';
 import Genres from '../resources/genres.json'
+import Tooltip from './Tooltip';
 
 function SearchForm({ setSearchResults }) {
     const [type, setType] = useState('track')
@@ -66,7 +67,7 @@ function SearchForm({ setSearchResults }) {
         <form onSubmit={handleSubmit}>
 
             {/* Contains fields */}
-            <fieldset className=' w-[50%] m-[0_auto] grid grid-cols-[0.75fr_1fr] gap-3'>
+            <fieldset className=' w-[20%] m-[0_auto] grid grid-cols-[0.75fr_1fr_0.1fr] gap-3'>
 
               {/* Type chooser - delete? */}
               <label htmlFor='type' className='text-right'>Type: </label>
@@ -78,6 +79,7 @@ function SearchForm({ setSearchResults }) {
               >
                 <option value="track">Track</option>
               </select>
+              <Tooltip text="?" tooltipText="Generated type" />
 
               {/* Search field for genre */}
               <label htmlFor='genre' className='text-right'>Genre: </label>
@@ -94,32 +96,58 @@ function SearchForm({ setSearchResults }) {
                   <option key={g.id} value={g.name} />
                 ))}
               </datalist>
+              <Tooltip text="?" tooltipText="Select music genre"/>
 
               {/* Other input fields */}
               {/* SLIDER RANGE: 0 to 1.0 */}
               {/* EXCEPT: minLoudness(~-60 to 0) minTempo(~50 to 250) */}
+              {/* From (year) */}
               <label htmlFor='yearFrom' className='text-right'>From (year): </label><InputField name="yearFrom" inputValue={yearFrom} setInputValue={setYearFrom} />
+                <Tooltip text="?" tooltipText="Generate from year"/>
+
+              {/* To (year) */}
               <label htmlFor='yearTo' className='text-right'>To (year): </label><InputField name="yearTo" inputValue={yearTo} setInputValue={setYearTo} />
+                <Tooltip text="?" tooltipText="Generate to year"/>
+
+              {/* Danceability */}
               <label htmlFor='minDanceability' className='text-right'>Danceability: </label>
                 <Slider name="minDanceability" inputValue={minDanceability} setInputValue={setMinDanceability} min="0" max="1" step="0.001"/>
+                <Tooltip text="?" tooltipText="Not in use"/>
+
+              {/* Energy */}
               <label htmlFor='minEnergy' className='text-right'>Energy: </label>
                 <Slider name="minEnergy" inputValue={minEnergy} setInputValue={setMinEnergy} min="0" max="1" step="0.001"/>
+                <Tooltip text="?" tooltipText="Not in use"/>
+
+              {/* Acousticness */}
               <label htmlFor='minAcousticness' className='text-right'>Acousticness: </label>
                 <Slider name="minAcousticness" inputValue={minAcousticness} setInputValue={setMinAcousticness} min="0" max="1" step="0.001"/>
+                <Tooltip text="?" tooltipText="Not in use"/>
+
+              {/* Instumentalness */}
               <label htmlFor='minInstrumentalness' className='text-right'>Instrumentalness: </label>
                 <Slider name="minInstrumentalness" inputValue={minInstrumentalness} setInputValue={setMinInstrumentalness} min="0" max="1" step="0.001"/>
+                <Tooltip text="?" tooltipText="Not in use"/>
               {/* 
               <label htmlFor='minLiveness' className='text-right'>minLiveness: </label>
                 <Slider name="minLiveness" inputValue={minLiveness} setInputValue={setmMinLiveness} min="0" max="1" step="0.001"/>
+
               <label htmlFor='minLoudness' className='text-right'>minLoudness: </label>
                 <Slider name="minLoudness" inputValue={minLoudness} setInputValue={setMinLoudness} min="-60" max="0" step="0.5"/>
               */}
               <label htmlFor='minSpeechiness' className='text-right'>Speechiness: </label>
                 <Slider name="minSpeechiness" inputValue={minSpeechiness} setInputValue={setMinSpeechiness} min="0" max="1" step="0.001"/>
+                <Tooltip text="?" tooltipText="Not in use"/>
+
+              {/* Tempo */}
               <label htmlFor='minTempo' className='text-right'>Tempo: </label>
                 <Slider name="minTempo" inputValue={minTempo} setInputValue={setMinTempo} min="50" max="250" step="1"/>
+                <Tooltip text="?" tooltipText="Not in use"/>
+
+              {/* Valence */}
               <label htmlFor='minValence' className='text-right'>Valence: </label>
                 <Slider name="minValence" inputValue={minValence} setInputValue={setMinValence} min="0" max="1" step="0.001"/>
+                <Tooltip text="?" tooltipText="Not in use"/>
               
               {/* Limit */}
               <label htmlFor="limit" className='text-right'>Limit: </label>
@@ -144,6 +172,7 @@ function SearchForm({ setSearchResults }) {
                 }}
                 className='w-[15em]'
               />
+              <Tooltip text="?" tooltipText="Leave 0 for max amount. Otherwise 1-49"/>
             </fieldset>
             <br />
             <button 

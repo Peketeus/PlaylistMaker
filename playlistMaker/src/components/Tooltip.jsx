@@ -1,6 +1,6 @@
 import "./Tooltip.css"
 
-const Tooltip = ({ text, tooltipText }) => {
+function Tooltip({ text, tooltipText }) {
     return (
         <div className="tooltip">
             {text}
