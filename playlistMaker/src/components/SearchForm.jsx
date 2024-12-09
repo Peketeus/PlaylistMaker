@@ -43,7 +43,6 @@ function SearchForm({ setSearchResults }) {
         setSearchResults(tracks);
         setIsSearching(false);
     }
-  }, [genre]); // Do filtering each time the genre-variable changes
 
   return (
     <form className=' flex flex-col items-center justify-center gap-4' onSubmit={handleSubmit}>
