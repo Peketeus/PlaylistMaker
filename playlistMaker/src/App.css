@@ -43,19 +43,6 @@ body {
   }
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  body {
-    animation: none; /* remove background animation for users who prefer reduced motion (e.g. due vestibular motion disorder) */
-    background-size: 100%;
-  }
-}
-
 .card {
   padding: 2em;
 }
@@ -83,4 +70,58 @@ body {
   display: flex;
   justify-content: flex-start;
   padding: 2% 0;
+  height: 64px;
+  width: auto;
+}
+
+@media screen and (max-width: 1200px) {
+  .headerbar {
+    flex-direction: column;
+    align-items: center;
+    gap: 0.2em;
+  }
+
+  .spotify-watermark {
+    width: auto;
+    gap: 0.5em;
+  }
+
+  .spotify-watermark img {
+    height: 48px;
+  }
+
+  .headerbar ul {
+    width: auto;
+    margin: 0;
+    flex-direction: column;
+    justify-content: space-around;
+    gap: 0.5em;
+  }
+
+  .logout {
+    all: unset;
+    margin: 0.5rem 0;
+  }
+
+  .form {
+    margin-left: 0;
+  }
+
+  .form-results {
+    flex-direction: column;
+  }
+
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  a:nth-of-type(2) .logo {
+    animation: logo-spin infinite 20s linear;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body {
+    animation: none; /* remove background animation for users who prefer reduced motion (e.g. due vestibular motion disorder) */
+    background-size: 100%;
+  }
 }
