@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { makePlaylist } from '../service';
 import './../index.css';
 import removeicon from '../assets/removeicon.png';
@@ -29,7 +29,7 @@ function AudioPlayer({ previewUrl, onPlay }) {
 }
 
 function SearchResults({ searchResults }) {
-  const [results, setResults] = useState(searchResults); // Local copy of searchResults, this is modified
+  const [results, setResults] = useState(searchResults); // Local copy of searchResults
   const [currentlyPlaying, setCurrentlyPlaying] = useState(null); // When playing a preview
   const [isSaving, setIsSaving] = useState(false); // Whether the playlist is being saved
   const [namePlaylist, setNamePlaylist] = useState('') // Name for the playlist
