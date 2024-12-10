@@ -143,73 +143,115 @@ export async function logoutClick() {
 
 /**
  * Fetches tracks by using parameters below until it can return limit amount of tracks.
- * @param {Number} yearFrom 
- * @param {Number} yearTo 
- * @param {String} genre 
- * @param {Number} limit 
+ * @param {Object} params Object containing search parameters
+ * @param {String} params.genre 
+ * @param {String} params.yearFrom 
+ * @param {String} params.yearTo 
+ * @param {String} params.limit 
  * @returns Fetched tracks
  */
-export async function fetchTracksUntilLimit(yearFrom, yearTo, genre, limit) {
-  let offset = 500; // Starting offset
-  const tracks = []; // Array to accumulate tracks
-  let maxFetch = 0;
+export async function fetchTracksUntilLimit(params) {
+  const yearNow = new Date().getFullYear();
+  const defaultYearOffset = 30;
+  // Default parameters
+  const defaults = {
+    defaultGenre: '',
+    defaultYearFrom: (yearNow - defaultYearOffset).toString(),
+    defaultYearTo: yearNow.toString(),
+    defaultLimit: "50",
+  };
 
-  if (!limit) limit = 50;
-  if (!yearFrom || isNaN(yearFrom)) yearFrom = 1990;
-  if (!yearTo || isNaN(yearTo)) yearTo = 2020;
-  if (yearTo < yearFrom) yearTo = yearFrom;
+  let offset = 450; // Offset for the query
+  const paramsExpanded = {
+    ...sanitizeParams(params, defaults),
+    offset: offset,
+  }
 
-  while (offset >= 0 && tracks.length < limit) {
-    if (offset < 0) break;
-    maxFetch++;
-    if (maxFetch > 10) {
-      break;
-    }
+  const tracks = []; // Accumulated tracks
+  let currentSearches = 0;
+  const maxSearches = 10;
 
-    const fetchedTracks = await apiCallSearch(yearFrom, yearTo, genre, limit - tracks.length, offset);
+  while (
+    0 <= offset && 
+    tracks.length < paramsExpanded.limit && 
+    currentSearches < maxSearches
+  ) {
+    const fetchedTracks = await apiCallSearch(paramsExpanded);
     for (const track of fetchedTracks) {
+      if (paramsExpanded.limit <= tracks.length) {
+        return tracks;
+      }
       if (!tracks.some((found_track) => found_track.id === track.id)) {
         tracks.push(track);
       }
     }
-    // If fewer tracks than requested are returned, reduce the offset
-    if (fetchedTracks.length < (limit - tracks.length)) {
-      if (0 < offset < 100) {
-        offset = 0;
-        continue;
-      }
-      else {
-        offset -= 100;
-      }
-    }
+    offset -= 50;
+    currentSearches++;
   }
+
   return tracks;
 }
 
 /**
+ * 
+ * @param {Object} params Object containing search parameters
+ * @param {String} params.genre 
+ * @param {String} params.yearFrom 
+ * @param {String} params.yearTo 
+ * @param {String} params.limit 
+ * 
+ * @param {Object} defaults
+ * @param {String} defaults.defaultGenre
+ * @param {String} defaults.defaultYearFrom
+ * @param {String} defaults.defaultYearTo
+ * @param {String} defaults.defaultLimit
+ * @returns Sanitized params
+ */
+function sanitizeParams(params, defaults) {
+  const paramsCopy = {
+    ...params
+  };
+
+  if (!params.yearFrom) {
+    paramsCopy.yearFrom = defaults.defaultYearFrom;
+  }
+  if (!params.yearTo) {
+    paramsCopy.yearTo = defaults.defaultYearTo;
+  }
+  // Swap
+  if (paramsCopy.yearTo < paramsCopy.yearFrom) {
+    [paramsCopy.yearFrom, paramsCopy.yearTo] = [paramsCopy.yearTo, paramsCopy.yearFrom];
+  }
+  if (!params.limit) {
+    paramsCopy.limit = defaults.defaultLimit;
+  }
+  return paramsCopy;
+}
+
+/**
  * Calls the API with the query.
- * @param {Number} yearFrom 
- * @param {Number} yearTo 
- * @param {String} genre 
- * @param {Number} limit 
- * @param {Number} offset 
+ * @param {Object} params 
+ * @param {String} params.genre 
+ * @param {String} params.yearFrom 
+ * @param {String} params.yearTo 
+ * @param {String} params.limit 
+ * @param {Number} params.offset 
  * @returns returned tracks
  */
-export async function apiCallSearch(yearFrom, yearTo, genre, limit, offset) {
+export async function apiCallSearch(params) {
   if (isTokenExpired()) {
     await refreshTokenClick();
   }
   const baseURL = "https://api.spotify.com/v1/search";
   const query = {
-    q: `genre:${genre} year:${yearFrom}-${yearTo}`,
+    q: `genre:${params.genre} year:${params.yearFrom}-${params.yearTo}`,
     type: "track",
-    limit: limit,
-    offset: randomOffset(offset),
+    limit: params.limit,
+    offset: randomOffset(params.offset),
   };
   const queryString = new URLSearchParams(query).toString();
   const url = `${baseURL}?${queryString}`;
   const token = currentToken.access_token;
-
   const response = await fetch(url, {
     method: "GET",
     headers: {
@@ -222,12 +264,17 @@ export async function apiCallSearch(yearFrom, yearTo, genre, limit, offset) {
     const data = await response.json();
     return data.tracks.items;
   }
-  console.error(
-    "Error searching tracks by criteria:",
-    response.status,
-    response.statusText
-  );
+  console.error("Error searching tracks by criteria:", response.status, response.statusText);
   return [];
+}
+
+/**
+ * Returns a random number between [0, max].
+ * @param {Number} max 
+ * @returns random number
+ */
+function randomOffset(max) {
+  return Math.floor(Math.random() * max);
 }
 
 /**
@@ -326,14 +373,6 @@ async function addTracksToPlaylist(playlist, tracks) {
   }
   const data = await response.json();
   return data;
-}
-
-/**
- * TODO: PALAUTETAAN VAAN TUO MATHFLOOR HOMMA TAKASI, VÄHÄ TESTAILUA
- * @returns random number between 0 and max
- */
-function randomOffset(max) {
-  return Math.floor(Math.random() * max);
 }
 
 ////// OLD CODE BEFORE SPOTIFY CLOSED API ENDPOINTS

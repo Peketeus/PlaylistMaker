@@ -36,7 +36,13 @@ function SearchForm({ setSearchResults }) {
   const handleSubmit = async (e) => {
     e.preventDefault()
     setIsSearching(true);
-    const tracks = await fetchTracksUntilLimit(yearFrom, yearTo, genre, limit);
+    const params = {
+      genre: genre,
+      yearFrom: yearFrom,
+      yearTo: yearTo,
+      limit: limit,
+    }
+    const tracks = await fetchTracksUntilLimit(params);
     setSearchResults(tracks);
     setIsSearching(false);
   }
