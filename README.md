@@ -1,6 +1,8 @@
 # PlaylistMaker
 
-**PlaylistMaker** is a web application built with React that utilizes the Spotify API to allow users to create randomly generated playlists based on the search parameters. The application then creates a link to your spotify account with the generated playlist added to it.
+![screenshot](images/playlistmaker.png)
+
+**PlaylistMaker** is a web application built with React that utilizes the Spotify API to create randomly generated playlists based on the search parameters. The application then creates a link to your spotify account with the generated playlist added to it.
 
 ## Table of Contents
 

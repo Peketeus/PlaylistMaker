@@ -1,48 +1,51 @@
-import React, { useEffect, useState } from 'react';
-import { apiCallSearch, fetchTracksUntilLimit, search } from '../service';
+import { useEffect, useState } from 'react';
+import { fetchTracksUntilLimit } from '../service';
 import InputField from './InputField';
 import Slider from './Slider';
 import Genres from '../resources/genres.json'
 import Tooltip from './Tooltip';
 
 function SearchForm({ setSearchResults }) {
-    const [type, setType] = useState('track')
-    const [genre, setGenre] = useState('')
-    const [filteredGenres, setFilteredGenres] = useState([])
-    const [yearFrom, setYearFrom] = useState('')
-    const [yearTo, setYearTo] = useState('')
-    const [minDanceability, setMinDanceability] = useState("0")
-    const [minEnergy, setMinEnergy] = useState("0")
-    const [minAcousticness, setMinAcousticness] = useState("0")
-    const [minInstrumentalness, setMinInstrumentalness] = useState("0")
-    //const [minLiveness, setmMinLiveness] = useState("0")
-    //const [minLoudness, setMinLoudness] = useState("-60")
-    const [minSpeechiness, setMinSpeechiness] = useState("0")
-    const [minTempo, setMinTempo] = useState("0")
-    const [minValence, setMinValence] = useState("0")
-    const [limit, setLimit] = useState('')
-    const [isSearching, setIsSearching] = useState(false)
-    //const [createPlaylist, setCreatePlaylist] = useState(false)
+  const [type, setType] = useState('track')
+  const [genre, setGenre] = useState('')
+  const [filteredGenres, setFilteredGenres] = useState([])
+  const [yearFrom, setYearFrom] = useState('')
+  const [yearTo, setYearTo] = useState('')
+  const [minDanceability, setMinDanceability] = useState("0")
+  const [minEnergy, setMinEnergy] = useState("0")
+  const [minAcousticness, setMinAcousticness] = useState("0")
+  const [minInstrumentalness, setMinInstrumentalness] = useState("0")
+  const [minSpeechiness, setMinSpeechiness] = useState("0")
+  const [minTempo, setMinTempo] = useState("0")
+  const [minValence, setMinValence] = useState("0")
+  const [limit, setLimit] = useState('')
+  const [isSearching, setIsSearching] = useState(false)
 
-    // Filter what genres the search box offers upon user input
-    useEffect(() => {
-      if (genre) {
-        const results = Genres.filter(g =>
-          g.name.toLowerCase().includes(genre.toLowerCase())
-        ).slice(0, 1500) // Adjust 2nd parameter to show more genre matches
-        setFilteredGenres(results);
-      } else {
-          setFilteredGenres([]); // If the genre-field is empty, empty the list
-      }
-    }, [genre]); // Do filtering each time the genre-variable changes
-
-    const handleSubmit = async (e) => {
-        e.preventDefault()
-        setIsSearching(true);
-        const tracks = await fetchTracksUntilLimit(yearFrom, yearTo, genre, limit);
-        setSearchResults(tracks);
-        setIsSearching(false);
+  // Filter what genres the search box offers upon user input
+  useEffect(() => {
+    if (genre) {
+      const results = Genres.filter(g =>
+        g.name.toLowerCase().includes(genre.toLowerCase())
+      ).slice(0, 1500) // Adjust 2nd parameter to show more genre matches
+      setFilteredGenres(results);
+    } else {
+      setFilteredGenres([]); // If the genre-field is empty, empty the list
     }
+  }, [genre]); // Do filtering each time the genre-variable changes
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    setIsSearching(true);
+    const params = {
+      genre: genre,
+      yearFrom: yearFrom,
+      yearTo: yearTo,
+      limit: limit,
+    }
+    const tracks = await fetchTracksUntilLimit(params);
+    setSearchResults(tracks);
+    setIsSearching(false);
+  }
 
   return (
     <form className='flex flex-col items-center justify-center gap-4' onSubmit={handleSubmit}>
@@ -81,7 +84,6 @@ function SearchForm({ setSearchResults }) {
 
         {/* Other input fields */}
         {/* SLIDER RANGE: 0 to 1.0 */}
-        {/* EXCEPT: minLoudness(~-60 to 0) minTempo(~50 to 250) */}
         {/* From (year) */}
         <label htmlFor='yearFrom' className='text-right'>From (year): </label><InputField name="yearFrom" type="number" inputValue={yearFrom} setInputValue={setYearFrom} />
         <Tooltip text="?" tooltipText="Generate from year" />
@@ -105,67 +107,62 @@ function SearchForm({ setSearchResults }) {
         <Slider name="minAcousticness" inputValue={minAcousticness} setInputValue={setMinAcousticness} min="0" max="1" step="0.001" />
         <Tooltip text="?" tooltipText="Not in use" />
 
-        {/* Instumentalness */}
+        {/* Instrumentalness */}
         <label htmlFor='minInstrumentalness' className='text-right'>Instrumentalness: </label>
         <Slider name="minInstrumentalness" inputValue={minInstrumentalness} setInputValue={setMinInstrumentalness} min="0" max="1" step="0.001" />
         <Tooltip text="?" tooltipText="Not in use" />
-        {/* 
-              <label htmlFor='minLiveness' className='text-right'>minLiveness: </label>
-                <Slider name="minLiveness" inputValue={minLiveness} setInputValue={setmMinLiveness} min="0" max="1" step="0.001"/>
 
-              <label htmlFor='minLoudness' className='text-right'>minLoudness: </label>
-                <Slider name="minLoudness" inputValue={minLoudness} setInputValue={setMinLoudness} min="-60" max="0" step="0.5"/>
-              */}
-              <label htmlFor='minSpeechiness' className='text-right'>Speechiness: </label>
-                <Slider name="minSpeechiness" inputValue={minSpeechiness} setInputValue={setMinSpeechiness} min="0" max="1" step="0.001"/>
-                <Tooltip text="?" tooltipText="Not in use"/>
+        {/* Speechiness */}
+        <label htmlFor='minSpeechiness' className='text-right'>Speechiness: </label>
+        <Slider name="minSpeechiness" inputValue={minSpeechiness} setInputValue={setMinSpeechiness} min="0" max="1" step="0.001" />
+        <Tooltip text="?" tooltipText="Not in use" />
 
-              {/* Tempo */}
-              <label htmlFor='minTempo' className='text-right'>Tempo: </label>
-                <Slider name="minTempo" inputValue={minTempo} setInputValue={setMinTempo} min="50" max="250" step="1"/>
-                <Tooltip text="?" tooltipText="Not in use"/>
+        {/* Tempo */}
+        <label htmlFor='minTempo' className='text-right'>Tempo: </label>
+        <Slider name="minTempo" inputValue={minTempo} setInputValue={setMinTempo} min="50" max="250" step="1" />
+        <Tooltip text="?" tooltipText="Not in use" />
 
-              {/* Valence */}
-              <label htmlFor='minValence' className='text-right'>Valence: </label>
-                <Slider name="minValence" inputValue={minValence} setInputValue={setMinValence} min="0" max="1" step="0.001"/>
-                <Tooltip text="?" tooltipText="Not in use"/>
-              
-              {/* Limit */}
-              <label htmlFor="limit" className='text-right'>Number of tracks: </label>
-              <input
-                id="limit"
-                type="number"
-                value={limit}
-                onChange={(e) => {
-                  const value = e.target.value;
-                  // If field is empty, allow null-value
-                  if (value === "" || (value >= 1 && value <= 50)) {
-                    setLimit(value);
-                  }
-                }}
-                placeholder="0"
-                min="1"
-                max="50"
-                // Prevent non-numbers from being entered, but allow backspace etc.
-                onKeyDown={(e) => {
-                  if (['Backspace', 'Enter', 'Tab', 'ArrowLeft', 'ArrowRight', 'Delete'].includes(e.key)) {
-                    return;
-                  }
-                  if (!/[0-9]/.test(e.key)) {
-                    e.preventDefault();
-                  }
-                }}
-                className='w-[15em]'
-              />
-              <Tooltip text="?" tooltipText="Leave 0 for max amount. Otherwise 1-49"/>
-            </fieldset>
-            <br />
-            <button 
-              className={`font-semibold rounded transition duration-300 w-[180px]
+        {/* Valence */}
+        <label htmlFor='minValence' className='text-right'>Valence: </label>
+        <Slider name="minValence" inputValue={minValence} setInputValue={setMinValence} min="0" max="1" step="0.001" />
+        <Tooltip text="?" tooltipText="Not in use" />
+
+        {/* Limit */}
+        <label htmlFor="limit" className='text-right'>Number of tracks: </label>
+        <input
+          id="limit"
+          type="number"
+          value={limit}
+          onChange={(e) => {
+            const value = e.target.value;
+            // If field is empty, allow null-value
+            if (value === "" || (value >= 1 && value <= 50)) {
+              setLimit(value);
+            }
+          }}
+          placeholder="0"
+          min="1"
+          max="50"
+          // Prevent non-numbers from being entered, but allow backspace etc.
+          onKeyDown={(e) => {
+            if (['Backspace', 'Enter', 'Tab', 'ArrowLeft', 'ArrowRight', 'Delete'].includes(e.key)) {
+              return;
+            }
+            if (!/[0-9]/.test(e.key)) {
+              e.preventDefault();
+            }
+          }}
+          className='w-[15em]'
+        />
+        <Tooltip text="?" tooltipText="Leave 0 for max amount. Otherwise 1-49" />
+      </fieldset>
+      <br />
+      <button
+        className={`font-semibold rounded transition duration-300 w-[180px]
                         ${isSearching ? 'bg-gray-400 text-gray-200 cursor-not-allowed' : 'bg-blue-500 text-white hover:bg-blue-600'}`}
-                disabled={isSearching}
-                type="submit"
-                >
+        disabled={isSearching}
+        type="submit"
+      >
         {isSearching ? 'Generating...' : 'Generate playlist'}
       </button>
     </form>
