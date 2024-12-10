@@ -1,24 +1,16 @@
-const clientId = import.meta.env.VITE_API_CLIENT_ID; // Comes from .env file that has to be in root folder
+const clientId = import.meta.env.VITE_API_CLIENT_ID; // Comes from .env file
 const redirectUrl = "http://localhost:5173/"; // Make sure this matches your Spotify redirect URL
 
 const authorizationEndpoint = "https://accounts.spotify.com/authorize";
 const tokenEndpoint = "https://accounts.spotify.com/api/token";
 const scope = "user-read-private user-read-email playlist-modify-public playlist-modify-private";
 
-// Data structure to manage the active token
+// Data structure to manage the active token.
 export const currentToken = {
-  get access_token() {
-    return localStorage.getItem("access_token") || null;
-  },
-  get refresh_token() {
-    return localStorage.getItem("refresh_token") || null;
-  },
-  get expires_in() {
-    return localStorage.getItem("expires_in") || null;
-  },
-  get expires() {
-    return localStorage.getItem("expires") || null;
-  },
+  get access_token() { return localStorage.getItem("access_token") || null; },
+  get refresh_token() { return localStorage.getItem("refresh_token") || null; },
+  get expires_in() { return localStorage.getItem("expires_in") || null; },
+  get expires() { return localStorage.getItem("expires") || null; },
 
   save: function (response) {
     const { access_token, refresh_token, expires_in } = response;
@@ -32,11 +24,11 @@ export const currentToken = {
   },
 };
 
-// Function to handle the Spotify login redirect
+// Function to handle the Spotify login redirect and authorization.
 export async function redirectToSpotifyAuthorize() {
   const possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
   const randomValues = crypto.getRandomValues(new Uint8Array(64));
-  const randomString = randomValues.reduce((acc, x) => acc + possible[x % possible.length],"");
+  const randomString = randomValues.reduce((acc, x) => acc + possible[x % possible.length], "");
 
   const code_verifier = randomString;
   const data = new TextEncoder().encode(code_verifier);
@@ -61,13 +53,13 @@ export async function redirectToSpotifyAuthorize() {
   };
 
   authUrl.search = new URLSearchParams(params).toString();
-  window.location.href = authUrl.toString(); // Redirect the user to Spotify for login
+  // Redirect the user to Spotify for login
+  window.location.href = authUrl.toString();
 }
 
-// Function to get the access token from Spotify after authorization
+// Function to get the access token from Spotify after authorization.
 export async function getToken(code) {
   const code_verifier = localStorage.getItem("code_verifier");
-
   const response = await fetch(tokenEndpoint, {
     method: "POST",
     headers: {
@@ -85,7 +77,7 @@ export async function getToken(code) {
   return await response.json();
 }
 
-// Function to refresh the token using the refresh token
+// Function to refresh the token using the refresh token.
 export async function refreshToken() {
   const response = await fetch(tokenEndpoint, {
     method: "POST",
@@ -102,7 +94,7 @@ export async function refreshToken() {
   return await response.json();
 }
 
-// Function checks if access token is expired
+// Function checks if access token is expired.
 function isTokenExpired() {
   const expiresAtString = currentToken.expires;
   if (!expiresAtString) {
@@ -116,7 +108,13 @@ function isTokenExpired() {
   return false;
 }
 
-// Function to get the current user's data
+// Optional function to handle refreshing tokens manually.
+export async function refreshTokenClick() {
+  const token = await refreshToken();
+  currentToken.save(token);
+}
+
+// Function to get the current user's data.
 export async function getUserData() {
   const response = await fetch("https://api.spotify.com/v1/me", {
     method: "GET",
@@ -126,21 +124,15 @@ export async function getUserData() {
   return await response.json();
 }
 
-// Optional function to handle login button click
+// Optional function to handle login button click.
 export async function loginWithSpotifyClick() {
   await redirectToSpotifyAuthorize();
 }
 
-// Log out via button click
+// Log out via button click.
 export async function logoutClick() {
   localStorage.clear();
   window.location.href = redirectUrl;
-}
-
-// Optional function to handle refreshing tokens manually
-export async function refreshTokenClick() {
-  const token = await refreshToken();
-  currentToken.save(token);
 }
 
 //-------------------------------------------------------------------------------------------
@@ -155,7 +147,7 @@ export async function refreshTokenClick() {
  * @param {Number} yearTo 
  * @param {String} genre 
  * @param {Number} limit 
- * @returns Array of found tracks
+ * @returns Fetched tracks
  */
 export async function fetchTracksUntilLimit(yearFrom, yearTo, genre, limit) {
   let offset = 500; // Starting offset
@@ -185,7 +177,8 @@ export async function fetchTracksUntilLimit(yearFrom, yearTo, genre, limit) {
       if (0 < offset < 100) {
         offset = 0;
         continue;
-      } else {
+      }
+      else {
         offset -= 100;
       }
     }
@@ -194,19 +187,18 @@ export async function fetchTracksUntilLimit(yearFrom, yearTo, genre, limit) {
 }
 
 /**
- * 
+ * Calls the API with the query.
  * @param {Number} yearFrom 
  * @param {Number} yearTo 
  * @param {String} genre 
  * @param {Number} limit 
  * @param {Number} offset 
- * @returns Array of tracks
+ * @returns returned tracks
  */
 export async function apiCallSearch(yearFrom, yearTo, genre, limit, offset) {
-  if (isTokenExpired()) { 
+  if (isTokenExpired()) {
     await refreshTokenClick();
   }
-
   const baseURL = "https://api.spotify.com/v1/search";
   const query = {
     q: `genre:${genre} year:${yearFrom}-${yearTo}`,
@@ -229,18 +221,17 @@ export async function apiCallSearch(yearFrom, yearTo, genre, limit, offset) {
   if (response.ok) {
     const data = await response.json();
     return data.tracks.items;
-  } else {
-    console.error(
-      "Error searching tracks by criteria:",
-      response.status,
-      response.statusText
-    );
-    return [];
   }
+  console.error(
+    "Error searching tracks by criteria:",
+    response.status,
+    response.statusText
+  );
+  return [];
 }
 
 /**
- * Constructs a formatted date for current time
+ * Constructs a formatted date for current time.
  * @returns formatted date
  */
 function constructDateNow() {
@@ -255,22 +246,17 @@ function constructDateNow() {
 }
 
 /**
- * Creates a playlist for the user with the selected tracks
- * @param {Array} filteredTracks
- * @param {String} namePlaylist
+ * Creates a playlist for the user with the selected tracks.
+ * @param {Array} filteredTracks 
+ * @param {String} namePlaylist 
  * @returns url to the playlist
  */
 export async function makePlaylist(filteredTracks, namePlaylist) {
-  // Step 6: Creating a playlist if the user checked the box and more than 0 tracks
   const userData = await getUserData();
-  // Constructing a date identifier for now
   const formattedDate = constructDateNow();
 
   const name = namePlaylist.trim().length > 0 ? namePlaylist : "PlaylistMaker " + formattedDate;
-  // Other 2 parameters
-  // Do we even want to let the user specify the description?
   const description = "Made using PlaylistMaker " + formattedDate;
-  // The user being able to set this will probably be handy
   const _public = true;
 
   const playlist = await createPlaylistSpotify(
@@ -280,25 +266,20 @@ export async function makePlaylist(filteredTracks, namePlaylist) {
     _public
   );
   const url = playlist.external_urls.spotify;
-  // Step 7: Add filtered tracks to the new playlist
-  const playlist_snapshot = await addTracksToPlaylist(playlist, filteredTracks);
-  // Snapshot is a version identifier for the playlist.
-  // A new one is generated every time the playlist is modified.
-  // Useful when modifying playlists as it works as a guarantee
-  // you are working with the latest version.
+  await addTracksToPlaylist(playlist, filteredTracks);
   return url;
 }
 
 /**
- * Creates a playlist for the user on Spotify
- * @param {String} user_id
- * @param {String} name
- * @param {String} description
- * @param {Boolean} _public
- * @returns data
+ * Creates a playlist for the user on Spotify.
+ * @param {String} user_id 
+ * @param {String} name 
+ * @param {String} description 
+ * @param {Boolean} _public 
+ * @returns JSON data of the playlist
  */
 async function createPlaylistSpotify(user_id, name, description, _public) {
-  const description_maxLength = 100;
+  const descriptionMaxLength = 100;
   const url = `https://api.spotify.com/v1/users/${user_id}/playlists`;
   const response = await fetch(url, {
     method: "POST",
@@ -308,7 +289,7 @@ async function createPlaylistSpotify(user_id, name, description, _public) {
     },
     body: JSON.stringify({
       name: name,
-      description: description.substring(0, description_maxLength),
+      description: description.substring(0, descriptionMaxLength),
       public: _public,
     }),
   });
@@ -323,7 +304,7 @@ async function createPlaylistSpotify(user_id, name, description, _public) {
  * Adds tracks to the specified playlist
  * @param {Object} playlist
  * @param {Array} tracks
- * @returns data
+ * @returns playlist snapshot_id
  */
 async function addTracksToPlaylist(playlist, tracks) {
   const track_uris = tracks.map((track) => `spotify:track:${track.id}`);
@@ -340,7 +321,6 @@ async function addTracksToPlaylist(playlist, tracks) {
       }),
     }
   );
-
   if (!response.ok) {
     throw new Error(`Failed to add tracks to playlist: ${response.statusText}`);
   }
