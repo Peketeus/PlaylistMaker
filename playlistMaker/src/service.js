@@ -5,6 +5,12 @@ const authorizationEndpoint = "https://accounts.spotify.com/authorize";
 const tokenEndpoint = "https://accounts.spotify.com/api/token";
 const scope = "user-read-private user-read-email playlist-modify-public playlist-modify-private";
 
+//
+//-------------------------------------------------------------------------------------------------
+// Authorization functionality
+//-------------------------------------------------------------------------------------------------
+//
+
 // Data structure to manage the active token.
 export const currentToken = {
   get access_token() { return localStorage.getItem("access_token") || null; },
@@ -135,9 +141,11 @@ export async function logoutClick() {
   window.location.href = redirectUrl;
 }
 
+//
 //-------------------------------------------------------------------------------------------------
 // PlaylistMaker functionality
 //-------------------------------------------------------------------------------------------------
+//
 
 /**
  * Fetches tracks by using user-given parameters until limit is reached.
