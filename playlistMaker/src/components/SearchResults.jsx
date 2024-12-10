@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { makePlaylist } from '../service';
 import './../index.css';
 import removeicon from '../assets/removeicon.png';

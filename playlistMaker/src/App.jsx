@@ -1,16 +1,14 @@
-import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
 import HeaderBar from './components/HeaderBar';
 import SearchResults from './components/SearchResults';
 import SearchForm from './components/SearchForm';
 import './App.css';
-import { getToken, currentToken, getUserData, loginWithSpotifyClick, logoutClick } from './service';
+import { getToken, currentToken, getUserData, loginWithSpotifyClick } from './service';
 
 function App() {
   const [userData, setUserData] = useState(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [searchResults, setSearchResults] = useState(null);
-  const navigate = useNavigate();
 
   useEffect(() => {
     const code = new URLSearchParams(window.location.search).get('code');

@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { apiCallSearch, fetchTracksUntilLimit, search } from '../service';
+import { useEffect, useState } from 'react';
+import { fetchTracksUntilLimit } from '../service';
 import InputField from './InputField';
 import Slider from './Slider';
 import Genres from '../resources/genres.json'
