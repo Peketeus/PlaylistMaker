@@ -21,14 +21,14 @@ const About = () => {
                 <div className="modal-overlay" onClick={toggleModal}>
                     <div className="modal-window" onClick={(e) => e.stopPropagation()}>
                         <p>
-                            PlaylistMaker is a web application built with React that uses 
-                            the Spotify API to create randomly generated playlists 
-                            based on search parameters. You can then add the generated 
+                            PlaylistMaker is a web application built with React that uses
+                            the Spotify API to create randomly generated playlists
+                            based on search parameters. You can then add the generated
                             playlist to your Spotify account.
                         </p>
                         <p>
-                            After logging in, you can generate playlists by specifying a genre and 
-                            optionally a year range. Due to recent changes in the Spotify API, 
+                            After logging in, you can generate playlists by specifying a genre and
+                            optionally a year range. Due to recent changes in the Spotify API,
                             the sliders are no longer functional.
                         </p>
                         <p>

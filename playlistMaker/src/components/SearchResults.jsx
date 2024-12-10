@@ -8,12 +8,15 @@ function AudioPlayer({ previewUrl, onPlay }) {
 
   useEffect(() => {
     if (audioRef.current) {
-      audioRef.current.volume = 0.2; // Set default volume manually as browser sets it very high by default
+      // Set default volume manually as browser sets it very high by default
+      audioRef.current.volume = 0.2;
     }
   }, []);
 
   const handlePlay = () => {
-    if (onPlay) onPlay(audioRef.current);
+    if (onPlay) {
+      onPlay(audioRef.current);
+    }
   };
 
   if (!previewUrl) {
@@ -53,9 +56,7 @@ function SearchResults({ searchResults }) {
   // Save the playlist with the tracks
   const handleSavePlaylist = async (e) => {
     e.preventDefault();
-    // An example of doing something when the playlist is being saved and when it finishes
     setIsSaving(true);
-    // Get the link and show it somewhere on the page?
     const url = await makePlaylist(results, namePlaylist);
     setPlaylistUrl(url);
     setIsSaving(false);
@@ -74,8 +75,6 @@ function SearchResults({ searchResults }) {
       {results && results.length === 0 &&
         <p>Found no elements that match the filters!</p>}
       {results && results.length > 0 && (
-
-        // Search results container
         <div className="relative w-[700px] h-auto m-[0_auto] bg-[#272b36] py-8">
           <div className="flex flex-col gap-4 items-start ml-4">
             <label>
@@ -102,9 +101,9 @@ function SearchResults({ searchResults }) {
             {playlistUrl &&
               <label className='absolute top-3 right-8 mt-3 py-8 flex font-bold'>
                 <a
-                href={playlistUrl}
-                target="_blank" 
-                className='underline cursor-pointer text-[rgba(255,255,255,0.87)] transition-[color_0.3s_ease] hover:text-[rgba(255,255,255,0.5)]'>
+                  href={playlistUrl}
+                  target="_blank"
+                  className='underline cursor-pointer text-[rgba(255,255,255,0.87)] transition-[color_0.3s_ease] hover:text-[rgba(255,255,255,0.5)]'>
                   Playlist saved, click to open in Spotify!
                 </a>
               </label>
