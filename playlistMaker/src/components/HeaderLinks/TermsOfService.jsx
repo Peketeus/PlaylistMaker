@@ -21,7 +21,13 @@ const TermsOfService = () => {
           <div className="modal-overlay" onClick={toggleModal}>
             <div className="modal-window" onClick={(e) => e.stopPropagation()}>
                 <p>
-				Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce auctor sem eget rhoncus finibus. Cras ac pretium orci. Integer tincidunt, diam eu gravida fermentum, ante ipsum tincidunt massa, in consectetur odio nisl et erat. Duis faucibus, elit sit amet elementum euismod, ipsum tellus sollicitudin nibh, at varius nulla ipsum vel. 
+                    You are free to use the PlaylistMaker, but any Spotify content 
+                    may not be used to train machine learning or AI model.
+                </p>
+                <p>
+                    PlaylistMaker is licensed under the Apache License 2.0. You can read 
+                    more about it in our 
+                    <a href="https://github.com/Peketeus/PlaylistMaker?tab=Apache-2.0-1-ov-file"> repository</a>
                 </p>
                 <button className="close-button" onClick={toggleModal}>
                     Close
