@@ -12,23 +12,19 @@ function App() {
 
   useEffect(() => {
     const code = new URLSearchParams(window.location.search).get('code');
-    console.log('code =', code)
 
-    // If the code is present in the URL, exchange it for a token 
+    // If the code is present in the URL, exchange it for a token
     if (code && !currentToken.access_token) {
       getToken(code).then((token) => {
         currentToken.save(token);
 
-        console.log('Access token = ', currentToken.access_token)
-
         // Remove the code-parameter from the URL
-        const url = new URL(window.location.href)
-        url.searchParams.delete('code')
-        const updatedUrl = url.search ? url.href : url.href.replace('?', '')
-        window.history.replaceState({}, document.title, updatedUrl)
+        const url = new URL(window.location.href);
+        url.searchParams.delete('code');
+        const updatedUrl = url.search ? url.href : url.href.replace('?', '');
+        window.history.replaceState({}, document.title, updatedUrl);
 
         setIsLoggedIn(true);
-
         // Get user data after login
         getUserData().then((data) => setUserData(data));
       });
@@ -58,22 +54,22 @@ function App() {
         <div>
           <h2>Welcome, {userData?.display_name}</h2>
           <img className='m-[0_auto] max-w-[6%] max-h-[auto] mb-4' src={userData?.images?.[0]?.url} />
-            {/* Only on first render */}
-            {!searchResults ? (
-              <SearchForm setSearchResults={setSearchResults} />
+          {/* Only on first render */}
+          {!searchResults ? (
+            <SearchForm setSearchResults={setSearchResults} />
             // Subsequent renders
-            ) : searchResults.length === 0 ? (
-                <div className='form-results'>
-                  <SearchForm setSearchResults={setSearchResults} />
-                  <SearchResults searchResults={searchResults} />
-                </div>
-              ) : (
-                <div className="form-results flex flex-row items-center content-center justify-center">
-                  <SearchForm setSearchResults={setSearchResults} />
-                  <SearchResults searchResults={searchResults} />
-                </div>
-              )
-            }
+          ) : searchResults.length === 0 ? (
+            <div className='form-results'>
+              <SearchForm setSearchResults={setSearchResults} />
+              <SearchResults searchResults={searchResults} />
+            </div>
+          ) : (
+            <div className="form-results flex flex-row items-center content-center justify-center">
+              <SearchForm setSearchResults={setSearchResults} />
+              <SearchResults searchResults={searchResults} />
+            </div>
+          )
+          }
         </div>
       )}
     </div>
