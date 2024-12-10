@@ -70,7 +70,7 @@ function App() {
                   <SearchResults searchResults={searchResults} />
                 </div>
               ) : (
-                <div className="form-results flex flex-row items-center content-center justify-center">
+                <div className="form-results flex flex-row items-center content-center justify-center gap-8">
                   <SearchForm setSearchResults={setSearchResults} />
                   <SearchResults searchResults={searchResults} />
                 </div>

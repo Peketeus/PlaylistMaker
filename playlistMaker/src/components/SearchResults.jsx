@@ -58,13 +58,11 @@ function SearchResults({ searchResults }) {
     // Get the link and show it somewhere on the page?
     const url = await makePlaylist(results, namePlaylist);
     setPlaylistUrl(url);
-    console.log("%cURL: " + url, "color:green;");
     setIsSaving(false);
   }
 
   // Removing a song
   const removeSong = (index) => {
-    //console.log("REMOVE", index);
     // Only needs the index i, hence the _ (ignoring the actual element)
     const updated = results.filter((_, i) => i !== index);
     setResults(updated);
@@ -78,13 +76,13 @@ function SearchResults({ searchResults }) {
       {results && results.length > 0 && (
 
         // Search results container
-        <div className="relative min-w-[700px] max-w-[min(700px,50%)] h-auto m-[0_auto] bg-[#272b36] py-8">
-          <div className="flex flex-col gap-4 items-end mr-4">
+        <div className="relative w-[700px] h-auto m-[0_auto] bg-[#272b36] py-8">
+          <div className="flex flex-col gap-4 items-start ml-4">
             <label>
               Playlist name:
               <input
                 type="text"
-                className="ml-2 bg-blue-300"
+                className="ml-2 bg-[rgb(70,69,75)] text-white"
                 maxLength="30"
                 value={namePlaylist}
                 onChange={(e) => setNamePlaylist(e.target.value)}
@@ -102,9 +100,12 @@ function SearchResults({ searchResults }) {
 
             {/* Link to the playlist */}
             {playlistUrl &&
-              <label className='absolute top-20 right-8 mt-3 py-2 flex font-bold'>
-                <a href={playlistUrl}>
-                  Saved playlist
+              <label className='absolute top-3 right-8 mt-3 py-8 flex font-bold'>
+                <a
+                href={playlistUrl}
+                target="_blank" 
+                className='underline cursor-pointer text-[rgba(255,255,255,0.87)] transition-[color_0.3s_ease] hover:text-[rgba(255,255,255,0.5)]'>
+                  Playlist saved, click to open in Spotify!
                 </a>
               </label>
             }

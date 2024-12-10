@@ -45,7 +45,7 @@ function SearchForm({ setSearchResults }) {
     }
 
   return (
-    <form className=' flex flex-col items-center justify-center gap-4' onSubmit={handleSubmit}>
+    <form className='flex flex-col items-center justify-center gap-4' onSubmit={handleSubmit}>
 
       {/* Contains fields */}
       <fieldset className='form w-[20%] grid grid-cols-[0.75fr_1fr_0.1fr] gap-3'>
@@ -83,11 +83,11 @@ function SearchForm({ setSearchResults }) {
         {/* SLIDER RANGE: 0 to 1.0 */}
         {/* EXCEPT: minLoudness(~-60 to 0) minTempo(~50 to 250) */}
         {/* From (year) */}
-        <label htmlFor='yearFrom' className='text-right'>From (year): </label><InputField name="yearFrom" inputValue={yearFrom} setInputValue={setYearFrom} />
+        <label htmlFor='yearFrom' className='text-right'>From (year): </label><InputField name="yearFrom" type="number" inputValue={yearFrom} setInputValue={setYearFrom} />
         <Tooltip text="?" tooltipText="Generate from year" />
 
         {/* To (year) */}
-        <label htmlFor='yearTo' className='text-right'>To (year): </label><InputField name="yearTo" inputValue={yearTo} setInputValue={setYearTo} />
+        <label htmlFor='yearTo' className='text-right'>To (year): </label><InputField name="yearTo" type="number" inputValue={yearTo} setInputValue={setYearTo} />
         <Tooltip text="?" tooltipText="Generate to year" />
 
         {/* Danceability */}
@@ -146,10 +146,14 @@ function SearchForm({ setSearchResults }) {
                 placeholder="0"
                 min="1"
                 max="50"
-                //required="required"
-                onInput={(e) => {
-                  // Remove all non-numbers
-                  e.target.value = e.target.value.replace(/[^0-9]/g, "");
+                // Prevent non-numbers from being entered, but allow backspace etc.
+                onKeyDown={(e) => {
+                  if (['Backspace', 'Enter', 'Tab', 'ArrowLeft', 'ArrowRight', 'Delete'].includes(e.key)) {
+                    return;
+                  }
+                  if (!/[0-9]/.test(e.key)) {
+                    e.preventDefault();
+                  }
                 }}
                 className='w-[15em]'
               />
